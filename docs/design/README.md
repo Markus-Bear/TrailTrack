@@ -8,6 +8,7 @@ Iteration 1 covered in detail. PNG for reports, SVG for sharp scaling.
 
 | File | What it shows |
 |---|---|
+| `architecture` | System architecture: components and how they connect |
 | `use-case` | Use case diagram, whole system, colour-coded by iteration |
 | `domain-model` | Domain model class diagram, whole system, colour-coded by iteration |
 | `ui-flow` | Screen navigation, whole system |
