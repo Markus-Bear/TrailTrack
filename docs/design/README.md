@@ -27,7 +27,7 @@ Each screen has numbered pins matching the design notes beside it.
 | File | Screen |
 |---|---|
 | `wf-01-map` | Map (home) (Iteration 1) |
-| `wf-02-map-selected` | Map, trail selected (Iteration 1) |
+| `wf-02-map-selected` | Map, route selected (Iteration 1) |
 | `wf-03-search` | Search (Iteration 1) |
 | `wf-04-detail` | Trail detail (Iteration 1) |
 | `wf-05-report` | Report condition (Iteration 1) |
