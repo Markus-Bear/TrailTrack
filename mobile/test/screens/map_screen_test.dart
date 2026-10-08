@@ -70,7 +70,7 @@ void main() {
   });
 
   testWidgets(
-    'tapping a trail highlights it and dims the others, tapping the map clears it',
+    'tapping a trail highlights it and shows its card, tapping the map clears it',
     (tester) async {
       // After fitting, the horizontal trail runs through the centre of the
       // map and the vertical one along its left edge.
@@ -90,6 +90,7 @@ void main() {
       expect(drawn.last.hitValue, across);
       expect(drawn.last.strokeWidth, greaterThan(drawn.first.strokeWidth));
       expect(drawn.first.color.a, lessThan(1));
+      expect(find.text('Trail 1'), findsOneWidget);
 
       await tester.tapAt(tester.getTopRight(map) + const Offset(-100, 100));
       await tester.pump(const Duration(milliseconds: 500));
@@ -97,6 +98,7 @@ void main() {
       drawn = _drawnPolylines(tester);
       expect(drawn.map((p) => p.strokeWidth).toSet(), hasLength(1));
       expect(drawn.every((p) => p.color.a == 1), isTrue);
+      expect(find.text('Trail 1'), findsNothing);
     },
   );
 }

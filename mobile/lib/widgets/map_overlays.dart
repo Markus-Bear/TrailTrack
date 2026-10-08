@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../models/trail.dart';
+
 /// Required credits for the map tiles (ODbL) and trail data (CC BY 4.0).
 class AttributionBar extends StatelessWidget {
   const AttributionBar({super.key});
@@ -42,6 +44,41 @@ class ErrorBanner extends StatelessWidget {
             Flexible(child: Text(message)),
             TextButton(onPressed: onRetry, child: const Text('Retry')),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Preview of the selected trail: name, difficulty and length.
+class TrailCard extends StatelessWidget {
+  const TrailCard({super.key, required this.trail});
+
+  final Trail trail;
+
+  @override
+  Widget build(BuildContext context) {
+    final text = Theme.of(context).textTheme;
+    final summary = [
+      trail.difficulty.label,
+      if (trail.lengthKm != null) '${trail.lengthKm!.toStringAsFixed(1)} km',
+    ].join(' | ');
+    // The bottom margin keeps the attribution bar visible below the card.
+    return SafeArea(
+      child: Card(
+        margin: const EdgeInsets.fromLTRB(12, 0, 12, 28),
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(trail.name, style: text.titleMedium),
+              const SizedBox(height: 4),
+              Text(summary, style: text.bodyMedium),
+            ],
+          ),
         ),
       ),
     );

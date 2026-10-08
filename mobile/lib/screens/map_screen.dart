@@ -129,6 +129,11 @@ class _MapScreenState extends State<MapScreen> {
                 child: ErrorBanner(message: _error!, onRetry: _loadTrails),
               ),
             ),
+          if (_selected != null)
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: TrailCard(trail: _selected!),
+            ),
         ],
       ),
     );
