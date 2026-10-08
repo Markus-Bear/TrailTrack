@@ -24,8 +24,10 @@ class _MapScreenState extends State<MapScreen> {
 
   late final TrailApi _api = widget.api ?? TrailApi();
   final MapController _mapController = MapController();
+  final LayerHitNotifier<Trail> _hitNotifier = ValueNotifier(null);
 
   List<Trail> _trails = const [];
+  Trail? _selected;
   bool _loading = true;
   bool _mapReady = false;
   String? _error;
@@ -34,6 +36,12 @@ class _MapScreenState extends State<MapScreen> {
   void initState() {
     super.initState();
     _loadTrails();
+  }
+
+  @override
+  void dispose() {
+    _hitNotifier.dispose();
+    super.dispose();
   }
 
   Future<void> _loadTrails() async {
@@ -46,6 +54,7 @@ class _MapScreenState extends State<MapScreen> {
       if (!mounted) return;
       setState(() {
         _trails = trails;
+        _selected = null;
         _loading = false;
       });
       _fitToTrails();
@@ -75,6 +84,12 @@ class _MapScreenState extends State<MapScreen> {
     );
   }
 
+  void _onTrailTapped() {
+    final hit = _hitNotifier.value;
+    if (hit == null || hit.hitValues.isEmpty) return;
+    setState(() => _selected = hit.hitValues.first);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -89,22 +104,19 @@ class _MapScreenState extends State<MapScreen> {
                 _mapReady = true;
                 _fitToTrails();
               },
+              onTap: (_, _) => setState(() => _selected = null),
             ),
             children: [
               TileLayer(
                 urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                 userAgentPackageName: 'com.github.markusbear.trailtrack',
               ),
-              PolylineLayer(
-                polylines: [
-                  for (final trail in _trails)
-                    for (final line in trail.lines)
-                      Polyline(
-                        points: line,
-                        strokeWidth: 4,
-                        color: _trailColour,
-                      ),
-                ],
+              GestureDetector(
+                onTap: _onTrailTapped,
+                child: PolylineLayer<Trail>(
+                  hitNotifier: _hitNotifier,
+                  polylines: _buildPolylines(),
+                ),
               ),
               const AttributionBar(),
             ],
@@ -120,5 +132,29 @@ class _MapScreenState extends State<MapScreen> {
         ],
       ),
     );
+  }
+
+  /// One polyline per trail section. When a trail is selected it is drawn
+  /// wider and last, so it sits on top of any trail it overlaps, and the
+  /// other trails fade.
+  List<Polyline<Trail>> _buildPolylines() {
+    final selected = _selected;
+    final ordered = [
+      for (final t in _trails)
+        if (t != selected) t,
+      ?selected,
+    ];
+    return [
+      for (final trail in ordered)
+        for (final line in trail.lines)
+          Polyline<Trail>(
+            points: line,
+            hitValue: trail,
+            strokeWidth: trail == selected ? 7 : 4,
+            color: selected == null || trail == selected
+                ? _trailColour
+                : _trailColour.withValues(alpha: 0.35),
+          ),
+    ];
   }
 }
