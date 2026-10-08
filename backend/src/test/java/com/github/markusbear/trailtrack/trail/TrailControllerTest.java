@@ -27,7 +27,7 @@ class TrailControllerTest {
         when(trailService.getTrailSummaries()).thenReturn(TrailFeatureCollection.of(List.of(
                 new TrailFeatureCollection.Feature("Feature", 7L,
                         "{\"type\":\"MultiLineString\",\"coordinates\":[[[-7.5,53.1],[-7.6,53.2]]]}",
-                        new TrailFeatureCollection.Properties("Waterfall Loop", "Easy", 2.0)))));
+                        new TrailFeatureCollection.Properties("Waterfall Loop", "Easy", 2.0, "blue")))));
 
         var response = mvc.get().uri("/api/trails").exchange();
 
@@ -38,5 +38,7 @@ class TrailControllerTest {
                 .isEqualTo("MultiLineString");
         assertThat(response).bodyJson().extractingPath("$.features[0].properties.name")
                 .isEqualTo("Waterfall Loop");
+        assertThat(response).bodyJson().extractingPath("$.features[0].properties.waymarkColour")
+                .isEqualTo("blue");
     }
 }

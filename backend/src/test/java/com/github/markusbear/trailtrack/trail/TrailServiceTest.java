@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 class TrailServiceTest {
 
     private record Summary(Long getId, String getName, String getDifficulty, Double getLengthKm,
-                           String getGeometry) implements TrailSummary {
+                           String getWaymarking, String getGeometry) implements TrailSummary {
     }
 
     @Test
@@ -20,7 +20,8 @@ class TrailServiceTest {
     void getTrailSummariesMapsEachSummaryToAFeature() {
         TrailRepository repository = mock(TrailRepository.class);
         when(repository.findAllSummaries(TrailService.DISPLAY_TOLERANCE_DEGREES)).thenReturn(List.of(
-                new Summary(1L, "Glenbarrow - Eco Walk", "Challenging", 8.5, "{\"type\":\"MultiLineString\"}")));
+                new Summary(1L, "Glenbarrow - Eco Walk", "Challenging", 8.5, "White arrow on red background",
+                        "{\"type\":\"MultiLineString\"}")));
 
         TrailFeatureCollection result = new TrailService(repository).getTrailSummaries();
 
@@ -30,6 +31,7 @@ class TrailServiceTest {
             assertThat(f.id()).isEqualTo(1L);
             assertThat(f.properties().name()).isEqualTo("Glenbarrow - Eco Walk");
             assertThat(f.properties().difficulty()).isEqualTo("Challenging");
+            assertThat(f.properties().waymarkColour()).isEqualTo("red");
             assertThat(f.geometry()).isEqualTo("{\"type\":\"MultiLineString\"}");
         });
     }

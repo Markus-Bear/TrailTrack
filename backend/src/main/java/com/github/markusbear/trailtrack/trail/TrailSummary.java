@@ -14,6 +14,9 @@ public interface TrailSummary {
 
     Double getLengthKm();
 
+    /** @return the register's waymarking text, may be null */
+    String getWaymarking();
+
     /** @return the route as a GeoJSON geometry, simplified for display */
     String getGeometry();
 }

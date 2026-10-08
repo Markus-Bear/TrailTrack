@@ -2,6 +2,7 @@ package com.github.markusbear.trailtrack.trail;
 
 import com.fasterxml.jackson.annotation.JsonRawValue;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * GeoJSON FeatureCollection of trails.
@@ -27,7 +28,8 @@ public record TrailFeatureCollection(String type, List<Feature> features) {
 
         public static Feature from(TrailSummary summary) {
             return new Feature("Feature", summary.getId(), summary.getGeometry(),
-                    new Properties(summary.getName(), summary.getDifficulty(), summary.getLengthKm()));
+                    new Properties(summary.getName(), summary.getDifficulty(), summary.getLengthKm(),
+                            WaymarkColour.fromDescription(summary.getWaymarking()).name().toLowerCase(Locale.ROOT)));
         }
     }
 
@@ -37,7 +39,8 @@ public record TrailFeatureCollection(String type, List<Feature> features) {
      * @param name the trail name
      * @param difficulty Easy, Moderate or Challenging
      * @param lengthKm the trail length in kilometres
+     * @param waymarkColour colour of the route's signs, e.g. "blue", or "unknown"
      */
-    public record Properties(String name, String difficulty, Double lengthKm) {
+    public record Properties(String name, String difficulty, Double lengthKm, String waymarkColour) {
     }
 }

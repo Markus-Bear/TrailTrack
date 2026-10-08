@@ -28,7 +28,7 @@ public interface TrailRepository extends JpaRepository<Trail, Long> {
      */
     @Query(value = """
             SELECT id AS "id", name AS "name", difficulty AS "difficulty",
-                   length_km AS "lengthKm",
+                   length_km AS "lengthKm", waymarking AS "waymarking",
                    ST_AsGeoJSON(ST_Simplify(geom, :tolerance), 6) AS "geometry"
             FROM trails
             ORDER BY name
