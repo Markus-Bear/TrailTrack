@@ -10,6 +10,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.locationtech.jts.geom.MultiLineString;
+import org.locationtech.jts.geom.Point;
 
 /**
  * A trail from the Sport Ireland National Trails Register, with its route
@@ -45,6 +46,14 @@ public class Trail {
 
     @Column(columnDefinition = "text")
     private String website;
+
+    /** The register's waymarking text, e.g. "White arrow on blue background". */
+    @Column(columnDefinition = "text")
+    private String waymarking;
+
+    /** The official start point (trailhead) of the route. */
+    @Column(columnDefinition = "geometry(Point,4326)")
+    private Point trailhead;
 
     /** The trail's route, in WGS84 latitude and longitude (SRID 4326). */
     @Column(columnDefinition = "geometry(MultiLineString,4326)")

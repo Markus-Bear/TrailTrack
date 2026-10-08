@@ -26,11 +26,14 @@ Iteration 1 of 4 is in progress.
 |---|---|
 | Trail data import (County Laois, 28 trails) | Done |
 | User registration and login | Planned |
-| Map display of imported trails | Planned |
+| Map display of imported trails | Done |
 | Condition report submission | Planned |
 | Trail search by name and distance | Planned |
 
-The mobile app is currently the Flutter starter template.
+The mobile app shows every trail on an OpenStreetMap base map, drawn in the
+colour of its trail signs. Routes that start from the same trailhead are
+grouped into a site, such as the three loops at Oughaval Woods, so each route
+can be picked out and its difficulty and length shown.
 
 **Roadmap:** Iteration 2 adds community walks and live condition overlays on
 the map. Iteration 3 adds offline report queuing and moderation rules.
@@ -111,6 +114,14 @@ cd mobile
 flutter run
 ```
 
+With the backend running, the Android emulator reaches it at
+`http://10.0.2.2:8080` by default. To use a different address, for example
+on a physical phone:
+
+```bash
+flutter run --dart-define=API_BASE_URL=http://<your-computer-ip>:8080
+```
+
 ### Run the tests
 
 ```bash
@@ -118,12 +129,18 @@ cd backend
 ./gradlew test
 ```
 
-The tests need PostgreSQL running and `DB_PASSWORD` set.
+The backend tests need PostgreSQL running and `DB_PASSWORD` set.
+
+```bash
+cd mobile
+flutter test
+```
 
 ## API
 
 | Method | Path | Description |
 |---|---|---|
+| GET | `/api/trails` | Returns every trail as GeoJSON, simplified for map display |
 | POST | `/api/admin/trails/import` | Imports County Laois trails from the Sport Ireland register |
 
 ## Design

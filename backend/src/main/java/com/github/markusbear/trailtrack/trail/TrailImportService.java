@@ -6,6 +6,7 @@ import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.MultiLineString;
+import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.PrecisionModel;
 import org.locationtech.jts.io.geojson.GeoJsonReader;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,14 +14,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponentsBuilder;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Imports trails from the Sport Ireland National Trails Register into the
  * trails table.
  *
- * Downloads trails as GeoJSON from the register's ArcGIS feature service,
- * creates a trail for each TrailID not seen before, and updates trails
- * that already exist.
+ * Downloads trails and their official start points (trailheads) from the
+ * register's ArcGIS feature services, creates a trail for each TrailID not
+ * seen before, and updates trails that already exist.
  */
 @Service
 public class TrailImportService {
@@ -33,20 +36,18 @@ public class TrailImportService {
     private final ObjectMapper objectMapper;
     private final GeoJsonReader geoJsonReader = new GeoJsonReader();
     private final String trailRoutesUrl;
+    private final String trailheadsUrl;
 
-    /**
-     * @param trailRepository repository the imported trails are saved to
-     * @param objectMapper JSON parser for the register's response
-     * @param trailRoutesUrl query URL of the register's trail routes service
-     */
     public TrailImportService(
             TrailRepository trailRepository,
             ObjectMapper objectMapper,
-            @Value("${trailtrack.import.trail-routes-url}") String trailRoutesUrl) {
+            @Value("${trailtrack.import.trail-routes-url}") String trailRoutesUrl,
+            @Value("${trailtrack.import.trailheads-url}") String trailheadsUrl) {
         this.restClient = RestClient.create();
         this.trailRepository = trailRepository;
         this.objectMapper = objectMapper;
         this.trailRoutesUrl = trailRoutesUrl;
+        this.trailheadsUrl = trailheadsUrl;
     }
 
     /**
@@ -68,7 +69,7 @@ public class TrailImportService {
                 // County lists every county a trail crosses (e.g. "Laois, Offaly"),
                 // so an exact match would drop cross-county trails.
                 .queryParam("where", "County LIKE '%Laois%'")
-                .queryParam("outFields", "TrailID,Name,County,Difficulty,Grade,TrailType,LengthKm,TimeToComplete,Description,Website")
+                .queryParam("outFields", "TrailID,Name,County,Difficulty,Grade,TrailType,LengthKm,TimeToComplete,Description,Website,WaymarkingDescription")
                 // The service defaults to Irish Grid coordinates; request WGS84 instead.
                 .queryParam("outSR", SRID)
                 .queryParam("f", "geojson")
@@ -81,6 +82,7 @@ public class TrailImportService {
         int updated = 0;
 
         try {
+            Map<Integer, Point> trailheads = fetchTrailheads();
             JsonNode root = objectMapper.readTree(responseBody);
             for (JsonNode feature : root.get("features")) {
                 JsonNode properties = feature.get("properties");
@@ -94,7 +96,9 @@ public class TrailImportService {
                 }
 
                 applyProperties(trail, properties);
-                trail.setGeom(readGeometry(feature.get("geometry")));
+                MultiLineString geom = readGeometry(feature.get("geometry"));
+                trail.setGeom(geom);
+                trail.setTrailhead(trailheads.getOrDefault(sourceTrailId, startOf(geom)));
                 trailRepository.save(trail);
 
                 if (isNew) {
@@ -108,6 +112,46 @@ public class TrailImportService {
         }
 
         return new TrailImportResult(created, updated);
+    }
+
+    /**
+     * Fetches the official start point of each Laois route from the register's
+     * trailheads service.
+     *
+     * @return start points keyed by the register's TrailID
+     * @throws org.locationtech.jts.io.ParseException if a point is not valid GeoJSON
+     */
+    private Map<Integer, Point> fetchTrailheads() throws org.locationtech.jts.io.ParseException {
+        String uri = UriComponentsBuilder.fromUriString(trailheadsUrl)
+                .queryParam("where", "County LIKE '%Laois%' AND TrailHeadType = 'Start'")
+                .queryParam("outFields", "TrailID")
+                .queryParam("outSR", SRID)
+                .queryParam("f", "geojson")
+                .build()
+                .toUriString();
+        JsonNode root = objectMapper.readTree(restClient.get().uri(uri).retrieve().body(String.class));
+
+        Map<Integer, Point> trailheads = new HashMap<>();
+        for (JsonNode feature : root.get("features")) {
+            Geometry point = geoJsonReader.read(feature.get("geometry").toString());
+            if (point instanceof Point p) {
+                p.setSRID(SRID);
+                trailheads.putIfAbsent(feature.get("properties").get("TrailID").asInt(), p);
+            }
+        }
+        return trailheads;
+    }
+
+    /**
+     * Fallback trailhead for a route with no official one: its first point.
+     *
+     * @param geom the route
+     * @return the route's first point
+     */
+    private Point startOf(MultiLineString geom) {
+        Point start = GEOMETRY_FACTORY.createPoint(geom.getGeometryN(0).getCoordinates()[0]);
+        start.setSRID(SRID);
+        return start;
     }
 
     /**
@@ -125,16 +169,13 @@ public class TrailImportService {
         trail.setTimeToComplete(textOrNull(properties, "TimeToComplete"));
         trail.setDescription(textOrNull(properties, "Description"));
         trail.setWebsite(textOrNull(properties, "Website"));
+        trail.setWaymarking(textOrNull(properties, "WaymarkingDescription"));
 
         JsonNode lengthKm = properties.get("LengthKm");
         trail.setLengthKm(lengthKm != null && !lengthKm.isNull() ? lengthKm.asDouble() : null);
     }
 
     /**
-     * Returns a field's text value.
-     *
-     * @param node the JSON object to read from
-     * @param field the field name
      * @return the field's text, or null if the field is missing or null
      */
     private String textOrNull(JsonNode node, String field) {
