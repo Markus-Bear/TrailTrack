@@ -24,6 +24,26 @@ enum Difficulty {
   }
 }
 
+/// Colour of a route's trail signs, as recorded in the Sport Ireland register.
+enum WaymarkColour {
+  green,
+  blue,
+  red,
+  purple,
+  yellow,
+  orange,
+  unknown;
+
+  /// Parses the backend's colour name, e.g. "blue".
+  ///
+  /// @param value the colour name
+  /// @return the matching colour, or [WaymarkColour.unknown]
+  static WaymarkColour parse(String? value) => WaymarkColour.values.firstWhere(
+    (c) => c.name == value?.trim().toLowerCase(),
+    orElse: () => WaymarkColour.unknown,
+  );
+}
+
 /// A trail as shown on the map: display attributes plus its route.
 class Trail {
   const Trail({
@@ -32,7 +52,12 @@ class Trail {
     required this.difficulty,
     required this.lengthKm,
     required this.lines,
-  });
+    this.waymarkColour = WaymarkColour.unknown,
+    String? siteId,
+    String? siteName,
+    this.trailhead,
+  }) : siteId = siteId ?? 'trail-$id',
+       siteName = siteName ?? name;
 
   final int id;
   final String name;
@@ -41,6 +66,25 @@ class Trail {
 
   /// The route as one or more lines. Some trails have disconnected sections.
   final List<List<LatLng>> lines;
+
+  /// Colour of the route's trail signs.
+  final WaymarkColour waymarkColour;
+
+  /// Identifies the site (trailhead) the route starts from. Routes from one
+  /// car park share it.
+  final String siteId;
+
+  /// Display name of the site, e.g. "Oughaval Woods".
+  final String siteName;
+
+  /// Official start point of the route, if the register records one.
+  final LatLng? trailhead;
+
+  /// The route name without its site prefix, e.g. "Mass Rock Walk" rather
+  /// than "Oughaval Woods - Mass Rock Walk".
+  String get shortName => name.startsWith('$siteName - ')
+      ? name.substring(siteName.length + 3)
+      : name;
 
   /// Parses a trail from a GeoJSON Feature returned by `GET /api/trails`.
   ///
@@ -51,12 +95,26 @@ class Trail {
     final properties = feature['properties'] as Map<String, dynamic>;
     return Trail(
       id: (feature['id'] as num).toInt(),
-      name: properties['name'] as String,
+      // Some register names end with a stray space.
+      name: (properties['name'] as String).trim(),
       difficulty: Difficulty.parse(properties['difficulty'] as String?),
       lengthKm: (properties['lengthKm'] as num?)?.toDouble(),
       lines: _parseLines(feature['geometry'] as Map<String, dynamic>),
+      waymarkColour: WaymarkColour.parse(
+        properties['waymarkColour'] as String?,
+      ),
+      siteId: properties['siteId'] as String?,
+      siteName: properties['siteName'] as String?,
+      trailhead: _parsePosition(properties['trailhead'] as List?),
     );
   }
+
+  static LatLng? _parsePosition(List? position) => position == null
+      ? null
+      : LatLng(
+          (position[1] as num).toDouble(),
+          (position[0] as num).toDouble(),
+        );
 
   /// Parses every feature in a GeoJSON FeatureCollection.
   ///

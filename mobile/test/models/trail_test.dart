@@ -6,13 +6,16 @@ Map<String, dynamic> feature({
   Map<String, dynamic>? geometry,
   String? difficulty = 'Moderate',
   num? lengthKm = 4.4,
+  String name = 'Collins Bog Loop',
+  String? waymarkColour = 'green',
 }) => {
   'type': 'Feature',
   'id': 19,
   'properties': {
-    'name': 'Collins Bog Loop',
+    'name': name,
     'difficulty': difficulty,
     'lengthKm': lengthKm,
+    'waymarkColour': waymarkColour,
   },
   'geometry':
       geometry ??
@@ -39,6 +42,19 @@ void main() {
       expect(trail.name, 'Collins Bog Loop');
       expect(trail.difficulty, Difficulty.moderate);
       expect(trail.lengthKm, 4.4);
+      expect(trail.waymarkColour, WaymarkColour.green);
+    });
+
+    test('trims stray spaces from the name', () {
+      final trail = Trail.fromFeature(
+        feature(name: 'Derryounce Bog Lake Walk '),
+      );
+      expect(trail.name, 'Derryounce Bog Lake Walk');
+    });
+
+    test('treats a missing waymark colour as unknown', () {
+      final trail = Trail.fromFeature(feature(waymarkColour: null));
+      expect(trail.waymarkColour, WaymarkColour.unknown);
     });
 
     test('parses a MultiLineString into separate lines', () {
