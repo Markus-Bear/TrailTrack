@@ -59,7 +59,9 @@ void main() {
     },
   );
 
-  testWidgets('shows the map data attribution', (tester) async {
+  testWidgets('shows the map data attribution, and no legend without trails', (
+    tester,
+  ) async {
     await tester.pumpWidget(
       MaterialApp(home: MapScreen(api: _FlakyTrailApi())),
     );
@@ -67,6 +69,7 @@ void main() {
 
     expect(find.textContaining('OpenStreetMap contributors'), findsOneWidget);
     expect(find.textContaining('Sport Ireland (CC BY 4.0)'), findsOneWidget);
+    expect(find.text('Easy'), findsNothing);
   });
 
   testWidgets(
@@ -81,6 +84,8 @@ void main() {
       );
       await tester.pump();
       await tester.pump();
+
+      expect(find.text('Easy'), findsOneWidget);
 
       final map = find.byType(FlutterMap);
       await tester.tapAt(tester.getCenter(map));

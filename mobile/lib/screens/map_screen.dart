@@ -4,6 +4,7 @@ import 'package:latlong2/latlong.dart';
 
 import '../models/trail.dart';
 import '../services/trail_api.dart';
+import '../widgets/difficulty_style.dart';
 import '../widgets/map_overlays.dart';
 
 /// Home screen: an OpenStreetMap base map with every trail drawn on top.
@@ -19,8 +20,6 @@ class MapScreen extends StatefulWidget {
 class _MapScreenState extends State<MapScreen> {
   /// Centre of County Laois, used until the trails have loaded.
   static const _laois = LatLng(53.0, -7.4);
-
-  static const _trailColour = Color(0xFF2E7D32);
 
   late final TrailApi _api = widget.api ?? TrailApi();
   final MapController _mapController = MapController();
@@ -121,6 +120,11 @@ class _MapScreenState extends State<MapScreen> {
               const AttributionBar(),
             ],
           ),
+          if (_trails.isNotEmpty)
+            const Align(
+              alignment: Alignment.topLeft,
+              child: DifficultyLegend(),
+            ),
           if (_loading) const Center(child: CircularProgressIndicator()),
           if (_error != null)
             SafeArea(
@@ -139,7 +143,8 @@ class _MapScreenState extends State<MapScreen> {
     );
   }
 
-  /// One polyline per trail section. When a trail is selected it is drawn
+  /// One polyline per trail section, coloured and patterned by difficulty.
+  /// When a trail is selected it is drawn
   /// wider and last, so it sits on top of any trail it overlaps, and the
   /// other trails fade.
   List<Polyline<Trail>> _buildPolylines() {
@@ -156,9 +161,10 @@ class _MapScreenState extends State<MapScreen> {
             points: line,
             hitValue: trail,
             strokeWidth: trail == selected ? 7 : 4,
-            color: selected == null || trail == selected
-                ? _trailColour
-                : _trailColour.withValues(alpha: 0.35),
+            pattern: difficultyPattern(trail.difficulty),
+            color: difficultyColour(trail.difficulty).withValues(
+              alpha: selected == null || trail == selected ? 1 : 0.35,
+            ),
           ),
     ];
   }

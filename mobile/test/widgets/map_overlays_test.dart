@@ -37,4 +37,14 @@ void main() {
 
     expect(find.text('Moderate'), findsOneWidget);
   });
+
+  testWidgets('legend lists each difficulty', (tester) async {
+    await tester.pumpWidget(
+      const MaterialApp(home: Scaffold(body: DifficultyLegend())),
+    );
+
+    expect(find.text('Easy'), findsOneWidget);
+    expect(find.text('Moderate'), findsOneWidget);
+    expect(find.text('Challenging'), findsOneWidget);
+  });
 }
