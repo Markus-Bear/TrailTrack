@@ -3,6 +3,7 @@ package com.github.markusbear.trailtrack.trail;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
+import com.github.markusbear.trailtrack.security.WithApiSecurity;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -12,6 +13,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.assertj.MockMvcTester;
 
 @WebMvcTest(TrailController.class)
+@WithApiSecurity
 @DisplayName("TrailController")
 class TrailControllerTest {
 
@@ -22,7 +24,7 @@ class TrailControllerTest {
     private TrailService trailService;
 
     @Test
-    @DisplayName("GET /api/trails returns GeoJSON with the geometry as an object, not a string")
+    @DisplayName("GET /api/trails works without logging in and returns GeoJSON with the geometry as an object")
     void getTrailsReturnsGeoJsonWithGeometryAsAnObject() {
         when(trailService.getTrailSummaries()).thenReturn(TrailFeatureCollection.of(List.of(
                 new TrailFeatureCollection.Feature("Feature", 7L,

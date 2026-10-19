@@ -25,7 +25,7 @@ Iteration 1 of 4 is in progress.
 | Iteration 1 feature | Status |
 |---|---|
 | Trail data import (County Laois, 28 trails) | Done |
-| User registration and login | Planned |
+| User registration and login | In progress (backend done) |
 | Map display of imported trails | Done |
 | Condition report submission | Planned |
 | Trail search by name and distance | Planned |
@@ -85,6 +85,33 @@ variable, so it is never stored in the repository:
 export DB_PASSWORD='<password>'
 ```
 
+### Login token key
+
+Login tokens are signed with a secret key, also read from an environment
+variable. It must be at least 32 characters. To generate a random one:
+
+```bash
+export JWT_SECRET="$(openssl rand -base64 48)"
+```
+
+Add both exports to your shell profile (for example `~/.zshrc`), so they are
+set in every terminal. Changing `JWT_SECRET` logs everyone out.
+
+### Administrator account
+
+Registering only creates hiker accounts. To get an administrator, set these
+before starting the backend:
+
+```bash
+export ADMIN_EMAIL='<email>'
+export ADMIN_PASSWORD='<password>'
+```
+
+On startup the backend creates that account, or, if the email is already
+registered, makes it an administrator without changing its password. The
+password must be at least 8 characters. With neither variable set, no
+administrator is created.
+
 ### Run the backend
 
 ```bash
@@ -92,20 +119,21 @@ cd backend
 ./gradlew bootRun
 ```
 
-The API runs on `http://localhost:8080`. The `trails` table is created
+The API runs on `http://localhost:8080`. The database tables are created
 automatically on first start.
 
 ### Import trail data
 
+The import needs an administrator's login token. Log in as the administrator
+(see [API](#api)), then:
+
 ```bash
-curl -X POST http://localhost:8080/api/admin/trails/import
+curl -X POST http://localhost:8080/api/admin/trails/import \
+  -H "Authorization: Bearer <token>"
 ```
 
 The first run returns `{"created":28,"updated":0}`. Running it again updates
 the existing trails instead of creating duplicates.
-
-This endpoint is not yet secured, so only run the backend locally for now.
-Access will be restricted to administrators when login is added.
 
 ### Run the mobile app
 
@@ -129,7 +157,8 @@ cd backend
 ./gradlew test
 ```
 
-The backend tests need PostgreSQL running and `DB_PASSWORD` set.
+The backend tests need PostgreSQL running, and `DB_PASSWORD` and `JWT_SECRET`
+set.
 
 ```bash
 cd mobile
@@ -138,10 +167,16 @@ flutter test
 
 ## API
 
-| Method | Path | Description |
-|---|---|---|
-| GET | `/api/trails` | Returns every trail as GeoJSON, simplified for map display |
-| POST | `/api/admin/trails/import` | Imports County Laois trails from the Sport Ireland register |
+| Method | Path | Login | Description |
+|---|---|---|---|
+| POST | `/api/auth/register` | No | Creates an account and returns a login token |
+| POST | `/api/auth/login` | No | Returns a login token for an email and password |
+| GET | `/api/auth/me` | Yes | Returns the logged-in user's account |
+| GET | `/api/trails` | No | Returns every trail as GeoJSON, simplified for map display |
+| POST | `/api/admin/trails/import` | Admin | Imports County Laois trails from the Sport Ireland register |
+
+Endpoints that need a login expect the token from register or login in an
+`Authorization: Bearer <token>` header. Tokens expire after 7 days.
 
 ## Design
 

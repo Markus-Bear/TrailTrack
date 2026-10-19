@@ -6,6 +6,7 @@ void main() {
   runApp(const TrailTrackApp());
 }
 
+/// Root of the TrailTrack app: its title, colour theme and home screen.
 class TrailTrackApp extends StatelessWidget {
   const TrailTrackApp({super.key});
 
