@@ -10,9 +10,10 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtGra
 import org.springframework.security.web.SecurityFilterChain;
 
 /**
- * Who can call which endpoint. Trails can be viewed without an account;
- * everything else needs a login token, sent in the Authorization header as
- * "Bearer" followed by the token.
+ * Who can call which endpoint. Trails can be viewed without an account,
+ * endpoints under /api/admin need an ADMIN account, and everything else needs
+ * a login token, sent in the Authorization header as "Bearer" followed by the
+ * token.
  */
 @Configuration
 public class SecurityConfig {
@@ -26,6 +27,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST, "/api/auth/register", "/api/auth/login").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/trails/**").permitAll()
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         // Lets failed requests show their real error instead of 401.
                         .requestMatchers("/error").permitAll()
                         .anyRequest().authenticated())

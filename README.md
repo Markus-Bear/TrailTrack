@@ -97,6 +97,21 @@ export JWT_SECRET="$(openssl rand -base64 48)"
 Add both exports to your shell profile (for example `~/.zshrc`), so they are
 set in every terminal. Changing `JWT_SECRET` logs everyone out.
 
+### Administrator account
+
+Registering only creates hiker accounts. To get an administrator, set these
+before starting the backend:
+
+```bash
+export ADMIN_EMAIL='<email>'
+export ADMIN_PASSWORD='<password>'
+```
+
+On startup the backend creates that account, or, if the email is already
+registered, makes it an administrator without changing its password. The
+password must be at least 8 characters. With neither variable set, no
+administrator is created.
+
 ### Run the backend
 
 ```bash
@@ -109,7 +124,8 @@ automatically on first start.
 
 ### Import trail data
 
-The import needs a login token. Register or log in (see [API](#api)), then:
+The import needs an administrator's login token. Log in as the administrator
+(see [API](#api)), then:
 
 ```bash
 curl -X POST http://localhost:8080/api/admin/trails/import \
@@ -118,9 +134,6 @@ curl -X POST http://localhost:8080/api/admin/trails/import \
 
 The first run returns `{"created":28,"updated":0}`. Running it again updates
 the existing trails instead of creating duplicates.
-
-Any logged-in user can run the import until administrator accounts are
-added, so only run the backend locally for now.
 
 ### Run the mobile app
 
@@ -160,7 +173,7 @@ flutter test
 | POST | `/api/auth/login` | No | Returns a login token for an email and password |
 | GET | `/api/auth/me` | Yes | Returns the logged-in user's account |
 | GET | `/api/trails` | No | Returns every trail as GeoJSON, simplified for map display |
-| POST | `/api/admin/trails/import` | Yes | Imports County Laois trails from the Sport Ireland register |
+| POST | `/api/admin/trails/import` | Admin | Imports County Laois trails from the Sport Ireland register |
 
 Endpoints that need a login expect the token from register or login in an
 `Authorization: Bearer <token>` header. Tokens expire after 7 days.
