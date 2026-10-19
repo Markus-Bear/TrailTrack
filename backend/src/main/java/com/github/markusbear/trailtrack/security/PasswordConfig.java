@@ -1,4 +1,4 @@
-package com.github.markusbear.trailtrack.auth;
+package com.github.markusbear.trailtrack.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
