@@ -5,6 +5,7 @@ import 'package:latlong2/latlong.dart';
 import '../models/trail.dart';
 import '../models/trail_site.dart';
 import '../services/trail_api.dart';
+import '../widgets/account_button.dart';
 import '../widgets/map_overlays.dart';
 import '../widgets/route_style.dart';
 
@@ -195,12 +196,25 @@ class _MapScreenState extends State<MapScreen> {
           ),
           if (_trails.isNotEmpty)
             const Align(alignment: Alignment.topLeft, child: RouteLegend()),
+          const SafeArea(
+            child: Align(
+              alignment: Alignment.topRight,
+              child: Padding(
+                padding: EdgeInsets.all(12),
+                child: AccountButton(),
+              ),
+            ),
+          ),
           if (_loading) const Center(child: CircularProgressIndicator()),
           if (_error != null)
             SafeArea(
               child: Align(
                 alignment: Alignment.topCenter,
-                child: ErrorBanner(message: _error!, onRetry: _loadTrails),
+                // Starts below the account button so the two never overlap.
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 56),
+                  child: ErrorBanner(message: _error!, onRetry: _loadTrails),
+                ),
               ),
             ),
           if (_selectedSite != null)
