@@ -5,7 +5,10 @@ import 'package:latlong2/latlong.dart';
 import 'package:trailtrack/models/trail.dart';
 import 'package:trailtrack/screens/map_screen.dart';
 import 'package:trailtrack/services/trail_api.dart';
+import 'package:trailtrack/view_models/auth_view_model.dart';
 import 'package:trailtrack/widgets/map_overlays.dart';
+
+import '../helpers/fake_auth.dart';
 
 /// Fake API that fails the first call and succeeds after that.
 class _FlakyTrailApi extends TrailApi {
@@ -42,12 +45,23 @@ List<Polyline<Trail>> _drawnPolylines(WidgetTester tester) => tester
     )
     .polylines;
 
+Future<void> _pumpMap(
+  WidgetTester tester,
+  TrailApi api, {
+  AuthViewModel? auth,
+}) => tester.pumpWidget(
+  withAuth(
+    MaterialApp(home: MapScreen(api: api)),
+    auth: auth,
+  ),
+);
+
 void main() {
   testWidgets(
     'shows an error with Retry when trails fail to load, and retries',
     (tester) async {
       final api = _FlakyTrailApi();
-      await tester.pumpWidget(MaterialApp(home: MapScreen(api: api)));
+      await _pumpMap(tester, api);
       await tester.pump();
 
       expect(find.textContaining('Could not load trails'), findsOneWidget);
@@ -63,9 +77,7 @@ void main() {
   testWidgets('shows the map data attribution, and no legend without trails', (
     tester,
   ) async {
-    await tester.pumpWidget(
-      MaterialApp(home: MapScreen(api: _FlakyTrailApi())),
-    );
+    await _pumpMap(tester, _FlakyTrailApi());
     await tester.pump();
 
     expect(find.textContaining('OpenStreetMap contributors'), findsOneWidget);
@@ -80,9 +92,7 @@ void main() {
       // and the horizontal one along the bottom of the fitted area.
       final across = _trail(1, const [LatLng(53.0, -7.4), LatLng(53.2, -7.4)]);
       final edge = _trail(2, const [LatLng(53.0, -7.6), LatLng(53.0, -7.2)]);
-      await tester.pumpWidget(
-        MaterialApp(home: MapScreen(api: _FakeTrailApi([across, edge]))),
-      );
+      await _pumpMap(tester, _FakeTrailApi([across, edge]));
       await tester.pump();
       await tester.pump();
 
@@ -126,7 +136,7 @@ void main() {
       route(1, 'Beech Way Walk', const LatLng(53.1, -7.0)),
       route(2, 'Mass Rock Walk', const LatLng(53.2, -7.4)),
     ]);
-    await tester.pumpWidget(MaterialApp(home: MapScreen(api: api)));
+    await _pumpMap(tester, api);
     await tester.pump();
     await tester.pump();
 
@@ -149,9 +159,7 @@ void main() {
       const shared = [LatLng(53.0, -7.4), LatLng(53.2, -7.4)];
       final first = _trail(1, shared);
       final second = _trail(2, shared);
-      await tester.pumpWidget(
-        MaterialApp(home: MapScreen(api: _FakeTrailApi([first, second]))),
-      );
+      await _pumpMap(tester, _FakeTrailApi([first, second]));
       await tester.pump();
       await tester.pump();
 
@@ -168,4 +176,37 @@ void main() {
       expect(find.text('Easy | 1.0 km'), findsOneWidget);
     },
   );
+
+  testWidgets('a guest sees Log in on the map, which opens the login screen', (
+    tester,
+  ) async {
+    await _pumpMap(tester, _FakeTrailApi(const []));
+    await tester.pump();
+
+    await tester.tap(find.text('Log in'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Continue as guest'), findsOneWidget);
+  });
+
+  testWidgets('a logged-in user can log out from the account menu', (
+    tester,
+  ) async {
+    final store = InMemorySessionStore(testSession());
+    final auth = AuthViewModel(api: FakeAuthApi(), store: store);
+    await auth.restore();
+    await _pumpMap(tester, _FakeTrailApi(const []), auth: auth);
+    await tester.pump();
+
+    expect(find.text('Log in'), findsNothing);
+    await tester.tap(find.text('M'));
+    await tester.pumpAndSettle();
+    expect(find.text('hiker@example.com'), findsOneWidget);
+
+    await tester.tap(find.text('Log out'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Log in'), findsOneWidget);
+    expect(store.saved, isNull);
+  });
 }
