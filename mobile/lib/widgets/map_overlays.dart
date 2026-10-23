@@ -91,6 +91,7 @@ class SelectionCard extends StatelessWidget {
     required this.site,
     required this.selected,
     required this.onSelectRoute,
+    this.onViewDetails,
   });
 
   final TrailSite site;
@@ -98,6 +99,9 @@ class SelectionCard extends StatelessWidget {
   /// The selected route, or null when the whole site is selected.
   final Trail? selected;
   final ValueChanged<Trail> onSelectRoute;
+
+  /// Opens the selected route's detail page. No button is shown without it.
+  final ValueChanged<Trail>? onViewDetails;
 
   @override
   Widget build(BuildContext context) {
@@ -145,6 +149,16 @@ class SelectionCard extends StatelessWidget {
                         onSelected: (_) => onSelectRoute(r),
                       ),
                   ],
+                ),
+              ],
+              if (route != null && onViewDetails != null) ...[
+                const SizedBox(height: 12),
+                FilledButton.tonal(
+                  onPressed: () => onViewDetails!(route),
+                  style: FilledButton.styleFrom(
+                    minimumSize: const Size.fromHeight(44),
+                  ),
+                  child: const Text('View details'),
                 ),
               ],
             ],

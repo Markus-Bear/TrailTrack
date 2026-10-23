@@ -8,6 +8,7 @@ import '../services/trail_api.dart';
 import '../widgets/account_button.dart';
 import '../widgets/map_overlays.dart';
 import '../widgets/route_style.dart';
+import 'trail_detail_screen.dart';
 
 /// Home screen: an OpenStreetMap base map with every trail drawn on top.
 ///
@@ -98,7 +99,7 @@ class _MapScreenState extends State<MapScreen> {
     _mapController.fitCamera(
       CameraFit.bounds(
         bounds: LatLngBounds.fromPoints(points),
-        padding: const EdgeInsets.fromLTRB(40, 110, 40, 220),
+        padding: const EdgeInsets.fromLTRB(40, 110, 40, 270),
       ),
     );
   }
@@ -224,6 +225,11 @@ class _MapScreenState extends State<MapScreen> {
                 site: _selectedSite!,
                 selected: _selectedTrail,
                 onSelectRoute: _selectTrail,
+                onViewDetails: (trail) => Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => TrailDetailScreen(trail: trail, api: _api),
+                  ),
+                ),
               ),
             ),
         ],

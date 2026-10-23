@@ -85,4 +85,35 @@ void main() {
     expect(find.text('Colour of the trail signs'), findsOneWidget);
     expect(find.text('National Waymarked Way'), findsOneWidget);
   });
+
+  testWidgets('a selected route has a View details button', (tester) async {
+    Trail? opened;
+    await _pump(
+      tester,
+      SelectionCard(
+        site: _site,
+        selected: _site.routes.first,
+        onSelectRoute: (_) {},
+        onViewDetails: (r) => opened = r,
+      ),
+    );
+
+    await tester.tap(find.text('View details'));
+
+    expect(opened, _site.routes.first);
+  });
+
+  testWidgets('a whole site has no View details button', (tester) async {
+    await _pump(
+      tester,
+      SelectionCard(
+        site: _site,
+        selected: null,
+        onSelectRoute: (_) {},
+        onViewDetails: (_) {},
+      ),
+    );
+
+    expect(find.text('View details'), findsNothing);
+  });
 }
