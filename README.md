@@ -25,9 +25,9 @@ Iteration 1 of 4 is in progress.
 | Iteration 1 feature | Status |
 |---|---|
 | Trail data import (County Laois, 28 trails) | Done |
-| User registration and login | In progress (backend done) |
+| User registration and login | Done |
 | Map display of imported trails | Done |
-| Condition report submission | Planned |
+| Condition report submission | In progress (backend done) |
 | Trail search by name and distance | Planned |
 
 The mobile app shows every trail on an OpenStreetMap base map, drawn in the
@@ -173,6 +173,7 @@ flutter test
 | POST | `/api/auth/login` | No | Returns a login token for an email and password |
 | GET | `/api/auth/me` | Yes | Returns the logged-in user's account |
 | GET | `/api/trails` | No | Returns every trail as GeoJSON, simplified for map display |
+| POST | `/api/trails/{id}/reports` | Yes | Reports a trail's condition; sending the same `clientRef` again returns the stored report |
 | POST | `/api/admin/trails/import` | Admin | Imports County Laois trails from the Sport Ireland register |
 
 Endpoints that need a login expect the token from register or login in an
