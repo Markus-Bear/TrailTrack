@@ -173,6 +173,7 @@ flutter test
 | POST | `/api/auth/login` | No | Returns a login token for an email and password |
 | GET | `/api/auth/me` | Yes | Returns the logged-in user's account |
 | GET | `/api/trails` | No | Returns every trail as GeoJSON, simplified for map display |
+| GET | `/api/trails/{id}` | No | Returns one trail's details, current conditions and reports from the last 7 days |
 | POST | `/api/trails/{id}/reports` | Yes | Reports a trail's condition; sending the same `clientRef` again returns the stored report |
 | POST | `/api/admin/trails/import` | Admin | Imports County Laois trails from the Sport Ireland register |
 

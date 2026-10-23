@@ -4,12 +4,16 @@ import 'package:http/http.dart' as http;
 
 import '../config.dart';
 import '../models/trail.dart';
+import '../models/trail_detail.dart';
 
 /// Thrown when trails cannot be loaded from the backend.
 class TrailApiException implements Exception {
-  const TrailApiException(this.message);
+  const TrailApiException(this.message, {this.notFound = false});
 
   final String message;
+
+  /// Whether the backend has no trail with the requested id.
+  final bool notFound;
 
   @override
   String toString() => 'TrailApiException: $message';
@@ -43,6 +47,32 @@ class TrailApi {
       throw TrailApiException('Server responded with ${response.statusCode}');
     }
     return Trail.listFromFeatureCollection(
+      jsonDecode(response.body) as Map<String, dynamic>,
+    );
+  }
+
+  /// Fetches one trail's details and recent condition reports.
+  ///
+  /// @param id the trail's id
+  /// @return the trail detail
+  /// @throws TrailApiException if the backend cannot be reached, responds
+  ///         with an error, or has no such trail (then [TrailApiException.notFound])
+  Future<TrailDetail> fetchTrailDetail(int id) async {
+    final http.Response response;
+    try {
+      response = await _client
+          .get(Uri.parse('$_baseUrl/api/trails/$id'))
+          .timeout(const Duration(seconds: 15));
+    } on Exception catch (e) {
+      throw TrailApiException('Could not reach the server ($e)');
+    }
+    if (response.statusCode == 404) {
+      throw const TrailApiException('No such trail', notFound: true);
+    }
+    if (response.statusCode != 200) {
+      throw TrailApiException('Server responded with ${response.statusCode}');
+    }
+    return TrailDetail.fromJson(
       jsonDecode(response.body) as Map<String, dynamic>,
     );
   }

@@ -64,4 +64,46 @@ void main() {
       expect(api.fetchTrails(), throwsA(isA<TrailApiException>()));
     },
   );
+
+  test(
+    'fetchTrailDetail calls /api/trails/{id} and parses the detail',
+    () async {
+      Uri? requested;
+      final api = TrailApi(
+        baseUrl: 'http://backend',
+        client: MockClient((request) async {
+          requested = request.url;
+          return http.Response(
+            jsonEncode({
+              'id': 9,
+              'name': 'Glenbarrow - Waterfall Loop',
+              'difficulty': 'Moderate',
+              'currentConditions': [],
+              'recentReports': [],
+            }),
+            200,
+          );
+        }),
+      );
+
+      final detail = await api.fetchTrailDetail(9);
+
+      expect(requested.toString(), 'http://backend/api/trails/9');
+      expect(detail.name, 'Glenbarrow - Waterfall Loop');
+    },
+  );
+
+  test('fetchTrailDetail reports a trail that does not exist', () async {
+    final api = TrailApi(
+      baseUrl: 'http://backend',
+      client: MockClient((_) async => http.Response('{}', 404)),
+    );
+
+    expect(
+      api.fetchTrailDetail(999),
+      throwsA(
+        isA<TrailApiException>().having((e) => e.notFound, 'notFound', true),
+      ),
+    );
+  });
 }
