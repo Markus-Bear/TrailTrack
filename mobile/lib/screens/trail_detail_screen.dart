@@ -4,19 +4,27 @@ import 'package:provider/provider.dart';
 import '../models/condition_report.dart';
 import '../models/trail.dart';
 import '../models/trail_detail.dart';
+import '../services/report_api.dart';
 import '../services/trail_api.dart';
 import '../view_models/auth_view_model.dart';
 import '../view_models/trail_detail_view_model.dart';
 import 'login_screen.dart';
+import 'report_screen.dart';
 
 /// A trail's detail page: the register's facts, its current conditions and
 /// recent reports, and the button to report its condition.
 class TrailDetailScreen extends StatelessWidget {
-  const TrailDetailScreen({super.key, required this.trail, this.api});
+  const TrailDetailScreen({
+    super.key,
+    required this.trail,
+    this.api,
+    this.reportApi,
+  });
 
   /// The route chosen on the map, shown while the details load.
   final Trail trail;
   final TrailApi? api;
+  final ReportApi? reportApi;
 
   @override
   Widget build(BuildContext context) {
@@ -24,15 +32,16 @@ class TrailDetailScreen extends StatelessWidget {
       create: (_) =>
           TrailDetailViewModel(api: api ?? TrailApi(), trailId: trail.id)
             ..load(),
-      child: _TrailDetailView(trail: trail),
+      child: _TrailDetailView(trail: trail, reportApi: reportApi),
     );
   }
 }
 
 class _TrailDetailView extends StatelessWidget {
-  const _TrailDetailView({required this.trail});
+  const _TrailDetailView({required this.trail, this.reportApi});
 
   final Trail trail;
+  final ReportApi? reportApi;
 
   @override
   Widget build(BuildContext context) {
@@ -69,17 +78,30 @@ class _TrailDetailView extends StatelessWidget {
     );
   }
 
-  void _reportCondition(BuildContext context) {
+  Future<void> _reportCondition(BuildContext context) async {
     if (!context.read<AuthViewModel>().isLoggedIn) {
-      showModalBottomSheet<void>(
+      await showModalBottomSheet<void>(
         context: context,
         builder: (sheet) => const _LogInToReport(),
       );
       return;
     }
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Reporting from the app is coming next.')),
+    final model = context.read<TrailDetailViewModel>();
+    final messenger = ScaffoldMessenger.of(context);
+    final report = await Navigator.of(context).push<ConditionReport>(
+      MaterialPageRoute(
+        builder: (_) => ReportScreen(
+          trailId: trail.id,
+          trailName: model.detail?.name ?? trail.name,
+          api: reportApi,
+        ),
+      ),
     );
+    if (report == null) return;
+    messenger.showSnackBar(
+      const SnackBar(content: Text('Thanks, report submitted')),
+    );
+    await model.load();
   }
 }
 

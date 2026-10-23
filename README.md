@@ -27,7 +27,7 @@ Iteration 1 of 4 is in progress.
 | Trail data import (County Laois, 28 trails) | Done |
 | User registration and login | Done |
 | Map display of imported trails | Done |
-| Condition report submission | In progress (backend done) |
+| Condition report submission | Done |
 | Trail search by name and distance | Planned |
 
 The mobile app shows every trail on an OpenStreetMap base map, drawn in the
@@ -167,15 +167,15 @@ flutter test
 
 ## API
 
-| Method | Path | Login | Description |
-|---|---|---|---|
-| POST | `/api/auth/register` | No | Creates an account and returns a login token |
-| POST | `/api/auth/login` | No | Returns a login token for an email and password |
-| GET | `/api/auth/me` | Yes | Returns the logged-in user's account |
-| GET | `/api/trails` | No | Returns every trail as GeoJSON, simplified for map display |
-| GET | `/api/trails/{id}` | No | Returns one trail's details, current conditions and reports from the last 7 days |
-| POST | `/api/trails/{id}/reports` | Yes | Reports a trail's condition; sending the same `clientRef` again returns the stored report |
-| POST | `/api/admin/trails/import` | Admin | Imports County Laois trails from the Sport Ireland register |
+| Method | Path | Login   | Description |
+|---|---|---------|---|
+| POST | `/api/auth/register` | No      | Creates an account and returns a login token |
+| POST | `/api/auth/login` | No      | Returns a login token for an email and password |
+| GET | `/api/auth/me` | Yes     | Returns the logged-in user's account |
+| GET | `/api/trails` | No      | Returns every trail as GeoJSON, simplified for map display |
+| GET | `/api/trails/{id}` | No      | Returns one trail's details, current conditions and reports from the last 7 days |
+| POST | `/api/trails/{id}/reports` | Yes     | Reports a trail's condition; sending the same `clientRef` again returns the stored report |
+| POST | `/api/admin/trails/import` | Admin   | Imports County Laois trails from the Sport Ireland register |
 
 Endpoints that need a login expect the token from register or login in an
 `Authorization: Bearer <token>` header. Tokens expire after 7 days.

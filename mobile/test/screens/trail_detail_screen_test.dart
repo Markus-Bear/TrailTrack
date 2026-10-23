@@ -3,10 +3,12 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:trailtrack/models/trail.dart';
 import 'package:trailtrack/screens/trail_detail_screen.dart';
+import 'package:trailtrack/services/report_api.dart';
 import 'package:trailtrack/services/trail_api.dart';
 import 'package:trailtrack/view_models/auth_view_model.dart';
 
 import '../helpers/fake_auth.dart';
+import '../helpers/fake_report_api.dart';
 import '../helpers/fake_trail_detail.dart';
 
 const _trail = Trail(
@@ -23,11 +25,12 @@ Future<void> _open(
   WidgetTester tester,
   TrailApi api, {
   AuthViewModel? auth,
+  ReportApi? reportApi,
 }) async {
   await tester.pumpWidget(
     withAuth(
       MaterialApp(
-        home: TrailDetailScreen(trail: _trail, api: api),
+        home: TrailDetailScreen(trail: _trail, api: api, reportApi: reportApi),
       ),
       auth: auth,
     ),
@@ -85,17 +88,30 @@ void main() {
     expect(find.text('Continue as guest'), findsOneWidget);
   });
 
-  testWidgets('a logged-in user is not asked to log in', (tester) async {
-    final auth = AuthViewModel(
-      api: FakeAuthApi(),
-      store: InMemorySessionStore(testSession()),
-    );
-    await auth.restore();
-    await _open(tester, FakeDetailTrailApi(), auth: auth);
+  testWidgets(
+    'a logged-in user reports a condition and sees the page refresh',
+    (tester) async {
+      final auth = AuthViewModel(
+        api: FakeAuthApi(),
+        store: InMemorySessionStore(testSession()),
+      );
+      await auth.restore();
+      final trails = FakeDetailTrailApi();
+      final reports = FakeReportApi();
+      await _open(tester, trails, auth: auth, reportApi: reports);
 
-    await tester.tap(find.text('Report condition'));
-    await tester.pumpAndSettle();
+      await tester.tap(find.text('Report condition'));
+      await tester.pumpAndSettle();
+      expect(find.text('What did you find?'), findsOneWidget);
 
-    expect(find.text('Log in to report conditions'), findsNothing);
-  });
+      await tester.tap(find.text('Flooding'));
+      await tester.pump();
+      await tester.tap(find.widgetWithText(FilledButton, 'Submit report'));
+      await tester.pumpAndSettle();
+
+      expect(reports.sent.single['trailId'], 9);
+      expect(find.text('Thanks, report submitted'), findsOneWidget);
+      expect(trails.calls, 2);
+    },
+  );
 }
