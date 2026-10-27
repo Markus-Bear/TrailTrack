@@ -93,9 +93,12 @@ class SearchViewModel extends ChangeNotifier {
   }
 
   /// Runs the search with the current settings. Results from an older search
-  /// that finishes late are ignored.
+  /// that finishes late are ignored. While "Near me" is still finding the
+  /// position, nothing is sent: [setNearMe] searches once it has it, with the
+  /// text and radius chosen in the meantime.
   Future<void> search() async {
     _typing?.cancel();
+    if (_nearMe && _position == null) return;
     final request = ++_latestRequest;
     _loading = true;
     _error = null;

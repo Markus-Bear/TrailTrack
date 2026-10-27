@@ -75,6 +75,26 @@ void main() {
     },
   );
 
+  test('choosing a radius while the position is found waits for it', () async {
+    final api = FakeSearchTrailApi();
+    final location = FakeLocationService(
+      const LocationFound(glenbarrowCarPark),
+    );
+    final model = _model(api, location);
+
+    location.hold = Completer<void>();
+    final turningOn = model.setNearMe(true);
+    await model.setRadius(5);
+    expect(api.searches, isEmpty);
+
+    location.hold!.complete();
+    await turningOn;
+
+    expect(api.searches.single.near, glenbarrowCarPark);
+    expect(api.searches.single.radiusKm, 5);
+    expect(model.resultsAreNearby, isTrue);
+  });
+
   test('turning near me off forgets the position', () async {
     final api = FakeSearchTrailApi();
     final model = _model(api);
