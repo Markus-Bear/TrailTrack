@@ -6,7 +6,6 @@ import '../models/trail.dart';
 import '../models/trail_site.dart';
 import '../services/location_service.dart';
 import '../services/trail_api.dart';
-import '../widgets/account_button.dart';
 import '../widgets/map_overlays.dart';
 import '../widgets/route_style.dart';
 import 'search_screen.dart';
@@ -19,10 +18,14 @@ import 'trail_detail_screen.dart';
 /// pin selects the site; tapping a route selects it, asking which route was
 /// meant when several share the path. Tapping elsewhere clears the selection.
 class MapScreen extends StatefulWidget {
-  const MapScreen({super.key, this.api, this.location});
+  const MapScreen({super.key, this.api, this.location, this.onSearch});
 
   final TrailApi? api;
   final LocationService? location;
+
+  /// Opens search, e.g. by switching to the Search tab. Without it the
+  /// search button opens the search screen on top of the map.
+  final VoidCallback? onSearch;
 
   @override
   State<MapScreen> createState() => _MapScreenState();
@@ -242,21 +245,16 @@ class _MapScreenState extends State<MapScreen> {
               alignment: Alignment.topRight,
               child: Padding(
                 padding: const EdgeInsets.all(12),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    IconButton.filledTonal(
-                      tooltip: 'Search trails',
-                      icon: const Icon(Icons.search),
-                      onPressed: () => Navigator.of(context).push(
+                child: IconButton.filledTonal(
+                  tooltip: 'Search trails',
+                  icon: const Icon(Icons.search),
+                  onPressed:
+                      widget.onSearch ??
+                      () => Navigator.of(context).push(
                         MaterialPageRoute(
                           builder: (_) => SearchScreen(api: _api),
                         ),
                       ),
-                    ),
-                    const SizedBox(width: 8),
-                    const AccountButton(),
-                  ],
                 ),
               ),
             ),
@@ -285,7 +283,7 @@ class _MapScreenState extends State<MapScreen> {
             SafeArea(
               child: Align(
                 alignment: Alignment.topCenter,
-                // Starts below the account button so the two never overlap.
+                // Starts below the search button so the two never overlap.
                 child: Padding(
                   padding: const EdgeInsets.only(top: 56),
                   child: ErrorBanner(message: _error!, onRetry: _loadTrails),

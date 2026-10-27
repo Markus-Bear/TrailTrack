@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'screens/map_screen.dart';
+import 'screens/home_screen.dart';
 import 'services/auth_api.dart';
 import 'services/session_store.dart';
 import 'view_models/auth_view_model.dart';
@@ -29,7 +29,7 @@ class TrailTrackApp extends StatelessWidget {
       child: MaterialApp(
         title: 'TrailTrack',
         theme: ThemeData(colorSchemeSeed: const Color(0xFF2E7D32)),
-        home: const MapScreen(),
+        home: const HomeScreen(),
       ),
     );
   }

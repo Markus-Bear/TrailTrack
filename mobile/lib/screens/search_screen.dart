@@ -9,10 +9,18 @@ import 'trail_detail_screen.dart';
 
 /// Search trails by name, or near the phone's position with "Near me".
 class SearchScreen extends StatelessWidget {
-  const SearchScreen({super.key, this.api, this.location});
+  const SearchScreen({
+    super.key,
+    this.api,
+    this.location,
+    this.autofocus = true,
+  });
 
   final TrailApi? api;
   final LocationService? location;
+
+  /// Whether the search box takes focus, opening the keyboard, when shown.
+  final bool autofocus;
 
   @override
   Widget build(BuildContext context) {
@@ -21,15 +29,16 @@ class SearchScreen extends StatelessWidget {
         api: api ?? TrailApi(),
         location: location ?? const DeviceLocationService(),
       )..search(),
-      child: _SearchView(api: api),
+      child: _SearchView(api: api, autofocus: autofocus),
     );
   }
 }
 
 class _SearchView extends StatelessWidget {
-  const _SearchView({this.api});
+  const _SearchView({this.api, required this.autofocus});
 
   final TrailApi? api;
+  final bool autofocus;
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +50,7 @@ class _SearchView extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         children: [
           TextField(
-            autofocus: true,
+            autofocus: autofocus,
             textInputAction: TextInputAction.search,
             onChanged: model.setQuery,
             onSubmitted: (_) => model.search(),
