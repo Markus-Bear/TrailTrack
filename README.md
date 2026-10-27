@@ -20,7 +20,8 @@ Technological University (SETU), Carlow.
 
 ## Status
 
-Iteration 1 of 4 is in progress.
+Iteration 1 of 4 is complete and released as
+[v0.1](https://github.com/Markus-Bear/TrailTrack/releases/tag/v0.1).
 
 | Iteration 1 feature | Status |
 |---|---|
@@ -45,16 +46,20 @@ Iteration 4 is testing and polish.
 |---|---|
 | Mobile client | Flutter (Android) |
 | Backend API | Spring Boot 4, Java 21, Gradle |
-| Database | PostgreSQL 16 with PostGIS 3 |
+| Database | PostgreSQL 16 or later with PostGIS 3 |
 | Map tiles | OpenStreetMap via flutter_map |
 | Trail data | Sport Ireland National Trails Register |
 
 ## Repository structure
 
 ```text
-backend/        Spring Boot API
-mobile/         Flutter Android app
-docs/design/    UML diagrams and UI wireframes
+backend/                Spring Boot API
+mobile/                 Flutter Android app
+docs/design/            UML diagrams and UI wireframes
+docs/specification/     Project specification
+docs/diaries/           Weekly project diaries
+docs/iteration-reports/ Reports at the end of each iteration
+docs/releases/          Release notes
 ```
 
 ## Getting started
@@ -62,7 +67,7 @@ docs/design/    UML diagrams and UI wireframes
 ### Prerequisites
 
 - Java 21
-- PostgreSQL 16 with the PostGIS extension
+- PostgreSQL 16 or later with the PostGIS extension
 - Flutter SDK, plus the Android SDK and an emulator or device
 
 ### Database setup
@@ -183,6 +188,18 @@ from the repository root:
 This needs Doxygen and Graphviz (on macOS: `brew install doxygen graphviz`)
 and the Flutter SDK. The generated HTML is not committed; it is attached to
 each GitHub release instead.
+
+### Package a release
+
+After a version is tagged on `main`, this builds the files attached to its
+GitHub release into `build/release`: the code at the tag as a zip, the code
+documentation, and a debug APK of the app.
+
+```bash
+./docs/package-release.sh v0.1
+```
+
+The working tree must be clean and checked out at the tag.
 
 ## API
 

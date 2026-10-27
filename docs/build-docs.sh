@@ -17,6 +17,8 @@ doxygen
 
 echo "App: dart doc"
 cd "$root/mobile"
+# dart doc needs the app's packages, which a fresh clone does not have yet.
+flutter pub get > /dev/null
 dart doc --output build/docs/api > /dev/null
 
 echo
