@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:latlong2/latlong.dart';
-import 'package:trailtrack/models/trail.dart';
 import 'package:trailtrack/screens/trail_detail_screen.dart';
 import 'package:trailtrack/services/report_api.dart';
 import 'package:trailtrack/services/trail_api.dart';
@@ -10,16 +8,6 @@ import 'package:trailtrack/view_models/auth_view_model.dart';
 import '../helpers/fake_auth.dart';
 import '../helpers/fake_report_api.dart';
 import '../helpers/fake_trail_detail.dart';
-
-const _trail = Trail(
-  id: 9,
-  name: 'Glenbarrow - Waterfall Loop',
-  difficulty: Difficulty.moderate,
-  lengthKm: 3.2,
-  lines: [
-    [LatLng(53.1, -7.5), LatLng(53.2, -7.5)],
-  ],
-);
 
 Future<void> _open(
   WidgetTester tester,
@@ -30,7 +18,12 @@ Future<void> _open(
   await tester.pumpWidget(
     withAuth(
       MaterialApp(
-        home: TrailDetailScreen(trail: _trail, api: api, reportApi: reportApi),
+        home: TrailDetailScreen(
+          trailId: 9,
+          trailName: 'Glenbarrow - Waterfall Loop',
+          api: api,
+          reportApi: reportApi,
+        ),
       ),
       auth: auth,
     ),

@@ -1,6 +1,7 @@
 package com.github.markusbear.trailtrack.report;
 
 import java.time.Instant;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -34,4 +35,18 @@ public interface ConditionReportRepository extends JpaRepository<ConditionReport
             """)
     List<ConditionReport> findRecentForTrail(@Param("trailId") long trailId, @Param("since") Instant since,
                                              @Param("hidden") ReportStatus hidden, Limit limit);
+
+    /**
+     * @param trailIds the trails, must not be empty
+     * @param since only reports received at or after this time
+     * @param hidden a status whose reports are left out, e.g. REMOVED
+     * @return the trails' reports, newest first
+     */
+    @Query("""
+            SELECT r FROM ConditionReport r
+            WHERE r.trail.id IN :trailIds AND r.reportedAt >= :since AND r.status <> :hidden
+            ORDER BY r.reportedAt DESC
+            """)
+    List<ConditionReport> findRecentForTrails(@Param("trailIds") Collection<Long> trailIds,
+                                              @Param("since") Instant since, @Param("hidden") ReportStatus hidden);
 }

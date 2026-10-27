@@ -8,6 +8,7 @@ import '../services/trail_api.dart';
 import '../widgets/account_button.dart';
 import '../widgets/map_overlays.dart';
 import '../widgets/route_style.dart';
+import 'search_screen.dart';
 import 'trail_detail_screen.dart';
 
 /// Home screen: an OpenStreetMap base map with every trail drawn on top.
@@ -197,12 +198,27 @@ class _MapScreenState extends State<MapScreen> {
           ),
           if (_trails.isNotEmpty)
             const Align(alignment: Alignment.topLeft, child: RouteLegend()),
-          const SafeArea(
+          SafeArea(
             child: Align(
               alignment: Alignment.topRight,
               child: Padding(
-                padding: EdgeInsets.all(12),
-                child: AccountButton(),
+                padding: const EdgeInsets.all(12),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton.filledTonal(
+                      tooltip: 'Search trails',
+                      icon: const Icon(Icons.search),
+                      onPressed: () => Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => SearchScreen(api: _api),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    const AccountButton(),
+                  ],
+                ),
               ),
             ),
           ),
@@ -227,7 +243,11 @@ class _MapScreenState extends State<MapScreen> {
                 onSelectRoute: _selectTrail,
                 onViewDetails: (trail) => Navigator.of(context).push(
                   MaterialPageRoute(
-                    builder: (_) => TrailDetailScreen(trail: trail, api: _api),
+                    builder: (_) => TrailDetailScreen(
+                      trailId: trail.id,
+                      trailName: trail.name,
+                      api: _api,
+                    ),
                   ),
                 ),
               ),

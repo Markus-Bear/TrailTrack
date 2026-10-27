@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../models/condition_report.dart';
-import '../models/trail.dart';
 import '../models/trail_detail.dart';
 import '../services/report_api.dart';
 import '../services/trail_api.dart';
@@ -16,13 +15,16 @@ import 'report_screen.dart';
 class TrailDetailScreen extends StatelessWidget {
   const TrailDetailScreen({
     super.key,
-    required this.trail,
+    required this.trailId,
+    required this.trailName,
     this.api,
     this.reportApi,
   });
 
-  /// The route chosen on the map, shown while the details load.
-  final Trail trail;
+  final int trailId;
+
+  /// Shown while the details load.
+  final String trailName;
   final TrailApi? api;
   final ReportApi? reportApi;
 
@@ -30,17 +32,26 @@ class TrailDetailScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (_) =>
-          TrailDetailViewModel(api: api ?? TrailApi(), trailId: trail.id)
+          TrailDetailViewModel(api: api ?? TrailApi(), trailId: trailId)
             ..load(),
-      child: _TrailDetailView(trail: trail, reportApi: reportApi),
+      child: _TrailDetailView(
+        trailId: trailId,
+        trailName: trailName,
+        reportApi: reportApi,
+      ),
     );
   }
 }
 
 class _TrailDetailView extends StatelessWidget {
-  const _TrailDetailView({required this.trail, this.reportApi});
+  const _TrailDetailView({
+    required this.trailId,
+    required this.trailName,
+    this.reportApi,
+  });
 
-  final Trail trail;
+  final int trailId;
+  final String trailName;
   final ReportApi? reportApi;
 
   @override
@@ -48,7 +59,7 @@ class _TrailDetailView extends StatelessWidget {
     final model = context.watch<TrailDetailViewModel>();
     final detail = model.detail;
     return Scaffold(
-      appBar: AppBar(title: Text(detail?.name ?? trail.name)),
+      appBar: AppBar(title: Text(detail?.name ?? trailName)),
       body: switch ((detail, model.error)) {
         (final TrailDetail d, _) => RefreshIndicator(
           onRefresh: model.load,
@@ -91,8 +102,8 @@ class _TrailDetailView extends StatelessWidget {
     final report = await Navigator.of(context).push<ConditionReport>(
       MaterialPageRoute(
         builder: (_) => ReportScreen(
-          trailId: trail.id,
-          trailName: model.detail?.name ?? trail.name,
+          trailId: trailId,
+          trailName: model.detail?.name ?? trailName,
           api: reportApi,
         ),
       ),

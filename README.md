@@ -28,7 +28,7 @@ Iteration 1 of 4 is in progress.
 | User registration and login | Done |
 | Map display of imported trails | Done |
 | Condition report submission | Done |
-| Trail search by name and distance | Planned |
+| Trail search by name and distance | Done |
 
 The mobile app shows every trail on an OpenStreetMap base map, drawn in the
 colour of its trail signs. Routes that start from the same trailhead are
@@ -173,6 +173,7 @@ flutter test
 | POST | `/api/auth/login` | No      | Returns a login token for an email and password |
 | GET | `/api/auth/me` | Yes     | Returns the logged-in user's account |
 | GET | `/api/trails` | No      | Returns every trail as GeoJSON, simplified for map display |
+| GET | `/api/trails/search?q=&lat=&lon=&radiusKm=` | No      | Finds trails by name and/or within a radius of a position (nearest first), with each trail's latest condition |
 | GET | `/api/trails/{id}` | No      | Returns one trail's details, current conditions and reports from the last 7 days |
 | POST | `/api/trails/{id}/reports` | Yes     | Reports a trail's condition; sending the same `clientRef` again returns the stored report |
 | POST | `/api/admin/trails/import` | Admin   | Imports County Laois trails from the Sport Ireland register |
