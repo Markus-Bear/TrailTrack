@@ -31,6 +31,9 @@ class TrailControllerTest {
     @MockitoBean
     private TrailDetailService trailDetailService;
 
+    @MockitoBean
+    private TrailSearchService trailSearchService;
+
     @Test
     @DisplayName("GET /api/trails works without logging in and returns GeoJSON with the geometry as an object")
     void getTrailsReturnsGeoJsonWithGeometryAsAnObject() {
@@ -80,5 +83,18 @@ class TrailControllerTest {
         when(trailDetailService.getTrailDetail(999L)).thenThrow(new TrailNotFoundException(999L));
 
         assertThat(mvc.get().uri("/api/trails/999")).hasStatus(404);
+    }
+
+    @Test
+    @DisplayName("GET /api/trails/search works without logging in and passes on the search")
+    void searchReturnsResults() {
+        when(trailSearchService.search("glen", 53.15, -7.44, 10.0)).thenReturn(List.of(
+                new TrailSearchResult(9L, "Glenbarrow - Waterfall Loop", "Moderate", 3.0, "blue", 1.2, null)));
+
+        var response = mvc.get().uri("/api/trails/search?q=glen&lat=53.15&lon=-7.44&radiusKm=10").exchange();
+
+        assertThat(response).hasStatusOk();
+        assertThat(response).bodyJson().extractingPath("$[0].name").isEqualTo("Glenbarrow - Waterfall Loop");
+        assertThat(response).bodyJson().extractingPath("$[0].distanceKm").isEqualTo(1.2);
     }
 }

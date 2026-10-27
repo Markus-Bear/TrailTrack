@@ -1,10 +1,12 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
+import 'package:latlong2/latlong.dart';
 
 import '../config.dart';
 import '../models/trail.dart';
 import '../models/trail_detail.dart';
+import '../models/trail_search_result.dart';
 
 /// Thrown when trails cannot be loaded from the backend.
 class TrailApiException implements Exception {
@@ -75,5 +77,44 @@ class TrailApi {
     return TrailDetail.fromJson(
       jsonDecode(response.body) as Map<String, dynamic>,
     );
+  }
+
+  /// Searches trails by name and, with a position, by distance. The position
+  /// is sent only with this request.
+  ///
+  /// @param query text the trail name must contain, or null for any name
+  /// @param near the searcher's position, or null to search by name only
+  /// @param radiusKm how far from [near] to look
+  /// @return matching trails, nearest first with a position, otherwise A to Z
+  /// @throws TrailApiException if the backend cannot be reached or responds
+  ///         with an error
+  Future<List<TrailSearchResult>> searchTrails({
+    String? query,
+    LatLng? near,
+    double? radiusKm,
+  }) async {
+    final uri = Uri.parse('$_baseUrl/api/trails/search').replace(
+      queryParameters: {
+        if (query != null && query.trim().isNotEmpty) 'q': query.trim(),
+        if (near != null) ...{
+          'lat': '${near.latitude}',
+          'lon': '${near.longitude}',
+          if (radiusKm != null) 'radiusKm': '$radiusKm',
+        },
+      },
+    );
+    final http.Response response;
+    try {
+      response = await _client.get(uri).timeout(const Duration(seconds: 15));
+    } on Exception catch (e) {
+      throw TrailApiException('Could not reach the server ($e)');
+    }
+    if (response.statusCode != 200) {
+      throw TrailApiException('Server responded with ${response.statusCode}');
+    }
+    return [
+      for (final r in jsonDecode(response.body) as List)
+        TrailSearchResult.fromJson(r as Map<String, dynamic>),
+    ];
   }
 }
