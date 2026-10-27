@@ -4,11 +4,13 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:trailtrack/models/trail.dart';
 import 'package:trailtrack/screens/map_screen.dart';
+import 'package:trailtrack/services/location_service.dart';
 import 'package:trailtrack/services/trail_api.dart';
 import 'package:trailtrack/view_models/auth_view_model.dart';
 import 'package:trailtrack/widgets/map_overlays.dart';
 
 import '../helpers/fake_auth.dart';
+import '../helpers/fake_search.dart';
 
 /// Fake API that fails the first call and succeeds after that.
 class _FlakyTrailApi extends TrailApi {
@@ -49,9 +51,12 @@ Future<void> _pumpMap(
   WidgetTester tester,
   TrailApi api, {
   AuthViewModel? auth,
+  LocationService? location,
 }) => tester.pumpWidget(
   withAuth(
-    MaterialApp(home: MapScreen(api: api)),
+    MaterialApp(
+      home: MapScreen(api: api, location: location),
+    ),
     auth: auth,
   ),
 );
@@ -208,5 +213,46 @@ void main() {
 
     expect(find.text('Log in'), findsOneWidget);
     expect(store.saved, isNull);
+  });
+
+  testWidgets('the location button marks and centres on the phone position', (
+    tester,
+  ) async {
+    final location = FakeLocationService(
+      const LocationFound(glenbarrowCarPark),
+    );
+    await _pumpMap(tester, _FakeTrailApi(const []), location: location);
+    await tester.pump();
+    expect(find.byWidgetPredicate((w) => w is CircleLayer), findsNothing);
+
+    await tester.tap(find.byTooltip('Show my location'));
+    await tester.pump();
+    await tester.pump();
+
+    expect(location.calls, 1);
+    final dot = tester.widget<CircleLayer>(
+      find.byWidgetPredicate((w) => w is CircleLayer),
+    );
+    expect(dot.circles.single.point, glenbarrowCarPark);
+  });
+
+  testWidgets('without a position the location button says why', (
+    tester,
+  ) async {
+    await _pumpMap(
+      tester,
+      _FakeTrailApi(const []),
+      location: FakeLocationService(
+        const LocationUnavailable('Location permission was not given.'),
+      ),
+    );
+    await tester.pump();
+
+    await tester.tap(find.byTooltip('Show my location'));
+    await tester.pump();
+    await tester.pump();
+
+    expect(find.text('Location permission was not given.'), findsOneWidget);
+    expect(find.byWidgetPredicate((w) => w is CircleLayer), findsNothing);
   });
 }
