@@ -13,6 +13,7 @@ class TrailSite {
   /// The site's routes, longest first.
   final List<Trail> routes;
 
+  /// Whether the site has more than one route to choose between.
   bool get hasSeveralRoutes => routes.length > 1;
 
   /// Where the site is shown on the map: the official trailhead, or the

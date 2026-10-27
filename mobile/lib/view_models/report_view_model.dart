@@ -41,14 +41,17 @@ class ReportViewModel extends ChangeNotifier {
   bool get needsSeverity =>
       _conditionType != null && _conditionType != ConditionType.clear;
 
+  /// Whether Submit is enabled: a condition is chosen and nothing is sending.
   bool get canSubmit => _conditionType != null && !_busy;
 
+  /// Chooses the condition being reported.
   void selectCondition(ConditionType type) {
     _conditionType = type;
     _error = null;
     notifyListeners();
   }
 
+  /// Chooses how bad the condition is.
   void selectSeverity(Severity severity) {
     _severity = severity;
     notifyListeners();

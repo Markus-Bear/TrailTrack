@@ -16,6 +16,10 @@ import java.time.Instant;
 public record ReportResponse(Long id, Long trailId, ConditionType conditionType, Severity severity,
                              String note, ReportStatus status, Instant reportedAt) {
 
+    /**
+     * @param report a stored report
+     * @return its public details, without the reporter
+     */
     public static ReportResponse from(ConditionReport report) {
         return new ReportResponse(report.getId(), report.getTrail().getId(), report.getConditionType(),
                 report.getSeverity(), report.getNote(), report.getStatus(), report.getReportedAt());

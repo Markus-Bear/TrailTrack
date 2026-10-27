@@ -86,6 +86,7 @@ class SearchViewModel extends ChangeNotifier {
     await search();
   }
 
+  /// Changes the "Near me" radius and searches again.
   Future<void> setRadius(double km) async {
     _radiusKm = km;
     await search();

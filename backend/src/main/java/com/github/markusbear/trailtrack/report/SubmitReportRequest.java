@@ -25,6 +25,7 @@ public record SubmitReportRequest(
         @NotNull(message = "Client reference is required")
         UUID clientRef) {
 
+    /** Clear reports have no severity; every other condition needs one. */
     @AssertTrue(message = "Severity is required unless the trail is clear")
     public boolean isSeverityGivenUnlessClear() {
         return conditionType == null || conditionType == ConditionType.CLEAR || severity != null;

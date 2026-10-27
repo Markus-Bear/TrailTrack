@@ -26,6 +26,8 @@ class AuthSession {
     user: AppUser.fromJson(json['user'] as Map<String, dynamic>),
   );
 
+  /// @return the session as JSON, in the same shape [AuthSession.fromJson]
+  /// reads
   Map<String, dynamic> toJson() => {
     'accessToken': accessToken,
     'expiresAt': expiresAt.toUtc().toIso8601String(),

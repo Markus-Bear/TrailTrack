@@ -165,6 +165,25 @@ cd mobile
 flutter test
 ```
 
+### Build the code documentation
+
+The backend is documented with Doxygen and the app with `dart doc`, since
+Doxygen does not support Dart. Both are built as HTML with one command, run
+from the repository root:
+
+```bash
+./docs/build-docs.sh
+```
+
+| Part | Output |
+|---|---|
+| Backend | `backend/build/docs/doxygen/html/index.html`, with class diagrams |
+| App | `mobile/build/docs/api/index.html` |
+
+This needs Doxygen and Graphviz (on macOS: `brew install doxygen graphviz`)
+and the Flutter SDK. The generated HTML is not committed; it is attached to
+each GitHub release instead.
+
 ## API
 
 | Method | Path | Login   | Description |

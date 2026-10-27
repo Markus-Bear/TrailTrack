@@ -7,12 +7,15 @@ sealed class LocationResult {
   const LocationResult();
 }
 
+/// The phone's position was found.
 class LocationFound extends LocationResult {
   const LocationFound(this.position);
 
   final LatLng position;
 }
 
+/// The position could not be found, e.g. location is off or permission was
+/// refused.
 class LocationUnavailable extends LocationResult {
   const LocationUnavailable(this.reason);
 
@@ -22,6 +25,7 @@ class LocationUnavailable extends LocationResult {
 
 /// Finds the phone's current position, asking for permission the first time.
 abstract interface class LocationService {
+  /// @return the position, or why it is not available
   Future<LocationResult> currentPosition();
 }
 
