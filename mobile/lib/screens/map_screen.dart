@@ -4,6 +4,7 @@ import 'package:latlong2/latlong.dart';
 
 import '../models/trail.dart';
 import '../models/trail_site.dart';
+import '../services/location_service.dart';
 import '../services/trail_api.dart';
 import '../widgets/account_button.dart';
 import '../widgets/map_overlays.dart';
@@ -18,9 +19,10 @@ import 'trail_detail_screen.dart';
 /// pin selects the site; tapping a route selects it, asking which route was
 /// meant when several share the path. Tapping elsewhere clears the selection.
 class MapScreen extends StatefulWidget {
-  const MapScreen({super.key, this.api});
+  const MapScreen({super.key, this.api, this.location});
 
   final TrailApi? api;
+  final LocationService? location;
 
   @override
   State<MapScreen> createState() => _MapScreenState();
@@ -35,6 +37,8 @@ class _MapScreenState extends State<MapScreen> {
   static const _detailZoom = 12.5;
 
   late final TrailApi _api = widget.api ?? TrailApi();
+  late final LocationService _location =
+      widget.location ?? const DeviceLocationService();
   final MapController _mapController = MapController();
   final LayerHitNotifier<Trail> _hitNotifier = ValueNotifier(null);
 
@@ -46,6 +50,11 @@ class _MapScreenState extends State<MapScreen> {
   bool _loading = true;
   bool _mapReady = false;
   bool _zoomedIn = false;
+
+  /// The phone's position, once the user asks to see it. Kept only on the
+  /// map, never sent anywhere.
+  LatLng? _myPosition;
+  bool _locating = false;
   String? _error;
 
   @override
@@ -129,6 +138,24 @@ class _MapScreenState extends State<MapScreen> {
     });
   }
 
+  /// Shows the phone's position on the map and centres on it, asking for
+  /// location permission the first time.
+  Future<void> _showMyLocation() async {
+    setState(() => _locating = true);
+    final result = await _location.currentPosition();
+    if (!mounted) return;
+    setState(() => _locating = false);
+    switch (result) {
+      case LocationFound(:final position):
+        setState(() => _myPosition = position);
+        final zoom = _mapController.camera.zoom;
+        _mapController.move(position, zoom < 13 ? 13 : zoom);
+      case LocationUnavailable(:final reason):
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(reason)));
+    }
+  }
+
   Future<void> _onRouteTapped() async {
     final hit = _hitNotifier.value;
     if (hit == null || hit.hitValues.isEmpty) return;
@@ -174,6 +201,18 @@ class _MapScreenState extends State<MapScreen> {
                   polylines: _buildPolylines(),
                 ),
               ),
+              if (_myPosition != null)
+                CircleLayer(
+                  circles: [
+                    CircleMarker(
+                      point: _myPosition!,
+                      radius: 9,
+                      color: const Color(0xFF1E88E5),
+                      borderColor: Colors.white,
+                      borderStrokeWidth: 3,
+                    ),
+                  ],
+                ),
               if (!_zoomedIn && _selectedSite == null)
                 MarkerLayer(
                   markers: [
@@ -222,6 +261,25 @@ class _MapScreenState extends State<MapScreen> {
               ),
             ),
           ),
+          // Hidden while the selection card fills the bottom of the screen.
+          if (_selectedSite == null)
+            Positioned(
+              right: 16,
+              bottom: 48,
+              child: SafeArea(
+                child: FloatingActionButton.small(
+                  heroTag: null,
+                  tooltip: 'Show my location',
+                  onPressed: _locating ? null : _showMyLocation,
+                  child: _locating
+                      ? const SizedBox.square(
+                          dimension: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.my_location),
+                ),
+              ),
+            ),
           if (_loading) const Center(child: CircularProgressIndicator()),
           if (_error != null)
             SafeArea(
