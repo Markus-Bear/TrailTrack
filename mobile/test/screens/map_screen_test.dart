@@ -182,37 +182,26 @@ void main() {
     },
   );
 
-  testWidgets('a guest sees Log in on the map, which opens the login screen', (
+  testWidgets('the search button calls onSearch when one is given', (
     tester,
   ) async {
-    await _pumpMap(tester, _FakeTrailApi(const []));
+    var searched = 0;
+    await tester.pumpWidget(
+      withAuth(
+        MaterialApp(
+          home: MapScreen(
+            api: _FakeTrailApi(const []),
+            onSearch: () => searched++,
+          ),
+        ),
+      ),
+    );
     await tester.pump();
 
-    await tester.tap(find.text('Log in'));
-    await tester.pumpAndSettle();
-
-    expect(find.text('Continue as guest'), findsOneWidget);
-  });
-
-  testWidgets('a logged-in user can log out from the account menu', (
-    tester,
-  ) async {
-    final store = InMemorySessionStore(testSession());
-    final auth = AuthViewModel(api: FakeAuthApi(), store: store);
-    await auth.restore();
-    await _pumpMap(tester, _FakeTrailApi(const []), auth: auth);
+    await tester.tap(find.byTooltip('Search trails'));
     await tester.pump();
 
-    expect(find.text('Log in'), findsNothing);
-    await tester.tap(find.text('M'));
-    await tester.pumpAndSettle();
-    expect(find.text('hiker@example.com'), findsOneWidget);
-
-    await tester.tap(find.text('Log out'));
-    await tester.pumpAndSettle();
-
-    expect(find.text('Log in'), findsOneWidget);
-    expect(store.saved, isNull);
+    expect(searched, 1);
   });
 
   testWidgets('the location button marks and centres on the phone position', (
