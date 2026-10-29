@@ -2,7 +2,7 @@
 # Builds the project website into _site:
 #   the page and its images          from site/
 #   the code documentation           docs/backend and docs/app
-#   the iteration reports and posters files/
+#   the posters                      files/
 #   each release's site screencast   media/
 # Needs doxygen, graphviz, the Flutter SDK and the GitHub CLI.
 
@@ -20,8 +20,8 @@ echo "Code documentation"
 cp -R "$root/backend/build/docs/doxygen/html" "$out/docs/backend"
 cp -R "$root/mobile/build/docs/api" "$out/docs/app"
 
-echo "Reports and posters"
-cp "$root"/docs/iteration-reports/*.pdf "$root"/docs/posters/*.pdf "$out/files/"
+echo "Posters"
+cp "$root"/docs/posters/*.pdf "$out/files/"
 
 echo "Screencasts"
 for tag in $(gh release list --repo Markus-Bear/TrailTrack --json tagName -q '.[].tagName'); do
