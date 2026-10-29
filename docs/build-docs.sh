@@ -7,7 +7,8 @@
 set -euo pipefail
 
 root="$(cd "$(dirname "$0")/.." && pwd)"
-export TRAILTRACK_VERSION="$(git -C "$root" describe --tags --always)"
+# Labelled with the latest release, or "dev" before the first one.
+export TRAILTRACK_VERSION="$(git -C "$root" describe --tags --abbrev=0 2> /dev/null || echo dev)"
 
 echo "Backend: Doxygen"
 cd "$root/backend"
