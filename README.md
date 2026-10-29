@@ -59,6 +59,7 @@ docs/design/            UML diagrams and UI wireframes
 docs/specification/     Project specification
 docs/diaries/           Weekly project diaries
 docs/iteration-reports/ Reports at the end of each iteration
+docs/posters/           Posters of each release
 docs/releases/          Release notes
 ```
 
