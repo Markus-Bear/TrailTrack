@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TrailTrack</title>
+<meta name="description" content="TrailTrack: real-time trail conditions and community walks for Ireland. A final year project at SETU Carlow.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232E5E33'/%3E%3Cpath d='M6 24 13 11l5 8 3-4 5 9z' fill='%23fff'/%3E%3C/svg%3E">
+<style>
+  :root {
+    --green: #2E5E33;
+    --green-mid: #3E7D45;
+    --green-light: #E8F3E8;
+    --ink: #1C1C1C;
+    --muted: #555;
+    --line: #D5DDD5;
+    --bg: #FFFFFF;
+    --soft: #F5F7F5;
+    color-scheme: light;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: -apple-system, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    color: var(--ink); background: var(--bg); line-height: 1.55; font-size: 17px;
+  }
+  a { color: var(--green-mid); }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 20px; }
+  nav {
+    position: sticky; top: 0; z-index: 10; background: rgba(255, 255, 255, 0.94);
+    backdrop-filter: blur(6px); border-bottom: 1px solid var(--line);
+  }
+  nav .wrap { display: flex; align-items: center; gap: 22px; height: 56px; overflow-x: auto; white-space: nowrap; }
+  nav b { color: var(--green); font-size: 18px; margin-right: auto; }
+  nav a { color: var(--ink); text-decoration: none; font-size: 15px; }
+  nav a:hover { color: var(--green-mid); }
+  header { background: var(--green); color: #FFF; padding: 72px 0 64px; }
+  header h1 { font-size: clamp(44px, 8vw, 76px); line-height: 1; letter-spacing: -1px; }
+  header .tagline { font-size: clamp(19px, 2.6vw, 26px); font-weight: 300; margin: 14px 0 18px; }
+  header p { max-width: 640px; opacity: 0.92; }
+  .buttons { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
+  .button {
+    display: inline-block; padding: 12px 22px; border-radius: 999px; font-weight: 600;
+    text-decoration: none; border: 2px solid #FFF;
+  }
+  .button.solid { background: #FFF; color: var(--green); }
+  .button.outline { color: #FFF; }
+  section { padding: 64px 0; }
+  section.soft { background: var(--soft); }
+  h2 { font-size: 30px; color: var(--green); margin-bottom: 18px; }
+  h3 { font-size: 20px; margin-bottom: 6px; }
+  .lead { color: var(--muted); max-width: 720px; margin-bottom: 28px; }
+  .demo { display: grid; grid-template-columns: minmax(0, 360px) 1fr; gap: 40px; align-items: center; }
+  .demo video {
+    width: 100%; max-height: 78vh; border-radius: 28px; border: 8px solid #222; background: #000; display: block;
+  }
+  .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+  .card { background: var(--green-light); border-radius: 14px; padding: 20px 22px; }
+  .card h3 { color: var(--green); }
+  .phones { display: grid; grid-template-columns: repeat(4, 1fr); gap: 22px; }
+  figure img { width: 100%; border-radius: 18px; border: 1px solid #C9C9C9; display: block; }
+  figcaption { font-size: 15px; color: var(--muted); margin-top: 10px; }
+  figcaption b { display: block; color: var(--ink); }
+  .release {
+    border: 1px solid var(--line); border-radius: 16px; padding: 24px 26px; background: #FFF;
+    display: grid; grid-template-columns: 1fr 220px; gap: 28px; margin-bottom: 18px;
+  }
+  .release .tag {
+    display: inline-block; background: var(--green); color: #FFF; border-radius: 8px;
+    padding: 2px 10px; font-weight: 700; margin-right: 8px;
+  }
+  .release .date { color: var(--muted); font-size: 15px; }
+  .release ul { margin: 12px 0 16px 20px; }
+  .release li { margin-bottom: 4px; }
+  .links { display: flex; flex-wrap: wrap; gap: 10px; }
+  .links a {
+    font-size: 15px; text-decoration: none; padding: 6px 14px; border-radius: 999px;
+    background: var(--green-light); color: var(--green); font-weight: 600;
+  }
+  .release .poster img { width: 100%; border: 1px solid var(--line); border-radius: 6px; display: block; }
+  .planned { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+  .planned .release { display: block; margin: 0; background: transparent; border-style: dashed; }
+  .planned .tag { background: #8A9A8C; }
+  .arch { display: grid; grid-template-columns: 1.6fr 1fr; gap: 36px; align-items: center; }
+  .arch img { width: 100%; display: block; }
+  .legend { font-size: 14px; color: var(--muted); margin-top: 10px; }
+  .legend i { display: inline-block; width: 22px; height: 12px; border-radius: 3px; vertical-align: -1px; margin-right: 6px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+  .chips span {
+    font-size: 14px; padding: 5px 12px; border-radius: 999px; background: var(--green-light);
+    color: var(--green); font-weight: 600;
+  }
+  .docs { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  .docs a {
+    display: block; border: 1px solid var(--line); border-radius: 14px; padding: 22px 24px;
+    text-decoration: none; color: var(--ink); background: #FFF;
+  }
+  .docs a:hover { border-color: var(--green-mid); }
+  .docs span { color: var(--muted); font-size: 15px; }
+  footer { background: var(--green); color: #FFF; padding: 36px 0; font-size: 15px; }
+  footer a { color: #FFF; }
+  footer p + p { margin-top: 8px; opacity: 0.85; }
+  @media (max-width: 860px) {
+    .demo, .arch, .release, .docs { grid-template-columns: 1fr; }
+    .cards, .planned { grid-template-columns: 1fr; }
+    .phones { grid-template-columns: repeat(2, 1fr); }
+    .demo video { max-width: 340px; margin: 0 auto; }
+    .release .poster { max-width: 260px; }
+    nav .wrap { gap: 14px; }
+    nav a { font-size: 14px; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <b>TrailTrack</b>
+    <a href="#demo">Demo</a>
+    <a href="#about">About</a>
+    <a href="#releases">Releases</a>
+    <a href="#architecture">Architecture</a>
+    <a href="#docs">Code docs</a>
+  </div>
+</nav>
+
+<header>
+  <div class="wrap">
+    <h1>TrailTrack</h1>
+    <div class="tagline">Real-time trail conditions and community walks for Ireland</div>
+    <p>An Android app for walkers in Ireland. Check a trail's condition before you head out, and report
+      what you find so the next walker knows what to expect.</p>
+    <div class="buttons">
+      <a class="button solid" href="https://github.com/Markus-Bear/TrailTrack/releases/latest">Download the latest release</a>
+      <a class="button outline" href="#demo">Watch the demo</a>
+    </div>
+  </div>
+</header>
+
+<section id="demo">
+  <div class="wrap demo">
+    <video controls preload="metadata" playsinline poster="assets/screens/map.jpg"
+           src="media/TrailTrack-v0.1-screencast-site.mp4"></video>
+    <div>
+      <h2>See it in action</h2>
+      <p class="lead">A four-minute walkthrough of release v0.1 on the Android emulator: the trail map, search,
+        a trail's details, creating an account, and reporting a fallen tree.</p>
+      <div class="links">
+        <a href="media/TrailTrack-v0.1-screencast-site.mp4" download>Download the video</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="about" class="soft">
+  <div class="wrap">
+    <h2>Why TrailTrack</h2>
+    <p class="lead">Mud, flooding, fallen trees and forestry work can change a trail overnight, but walkers
+      plan around information that is often out of date. Group walks are arranged across club websites,
+      social media and group chats, with no single place to find one. Patchy signal on hills and in
+      forests makes both harder.</p>
+    <div class="cards">
+      <div class="card">
+        <h3>Official trail data</h3>
+        <p>Routes come from the Sport Ireland National Trails Register, drawn in the colours of their
+          waymark signs.</p>
+      </div>
+      <div class="card">
+        <h3>Free condition reports</h3>
+        <p>Walkers report what they find on a trail, and anyone can read the reports, with or without an
+          account.</p>
+      </div>
+      <div class="card">
+        <h3>Community walks</h3>
+        <p>Walking clubs and local walkers organise and join group walks on a trail. Coming in v0.2.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="screens">
+  <div class="wrap">
+    <h2>The app</h2>
+    <div class="phones">
+      <figure><img src="assets/screens/map.jpg" alt="The map with numbered site pins" loading="lazy">
+        <figcaption><b>The map</b>Routes in their trail sign colours, with a numbered pin for each site.</figcaption></figure>
+      <figure><img src="assets/screens/route.jpg" alt="A selected route with its site's route chips" loading="lazy">
+        <figcaption><b>A selected route</b>Chips switch between the routes that start at a site.</figcaption></figure>
+      <figure><img src="assets/screens/trail.jpg" alt="Trail details with current conditions and recent reports" loading="lazy">
+        <figcaption><b>Trail details</b>Current conditions and the reports from the last 7 days.</figcaption></figure>
+      <figure><img src="assets/screens/report.jpg" alt="The report condition form" loading="lazy">
+        <figcaption><b>Report a condition</b>What you found, how bad it is, and an optional note.</figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<section id="releases" class="soft">
+  <div class="wrap">
+    <h2>Releases</h2>
+    <p class="lead">TrailTrack is built in four iterations, each ending in a tagged release with a report,
+      a poster and a screencast.</p>
+
+    <div class="release">
+      <div>
+        <span class="tag">v0.1</span><span class="date">Iteration 1, released 29 October 2026</span>
+        <ul>
+          <li>The 28 County Laois trails, imported from the Sport Ireland National Trails Register</li>
+          <li>A map with routes in their sign colours, grouped into sites</li>
+          <li>Accounts: register, log in and stay logged in</li>
+          <li>Trail details and condition reports</li>
+          <li>Search by name, or near you within 5, 10 or 25 km</li>
+        </ul>
+        <div class="links">
+          <a href="https://github.com/Markus-Bear/TrailTrack/releases/tag/v0.1">Release and downloads</a>
+          <a href="files/TrailTrack_Iteration1_Report.pdf">Iteration report (PDF)</a>
+          <a href="files/TrailTrack_Iteration1_Poster.pdf">Poster (PDF)</a>
+          <a href="#demo">Screencast</a>
+        </div>
+      </div>
+      <a class="poster" href="files/TrailTrack_Iteration1_Poster.pdf">
+        <img src="assets/poster-v0.1.jpg" alt="The Iteration 1 poster" loading="lazy">
+      </a>
+    </div>
+
+    <div class="planned">
+      <div class="release">
+        <span class="tag">v0.2</span><span class="date">Iteration 2, December 2026</span>
+        <p>Community walks: create, browse and RSVP. Live conditions on the map and hazard pins.</p>
+      </div>
+      <div class="release">
+        <span class="tag">v0.3</span><span class="date">Iteration 3, February 2027</span>
+        <p>Reports queued offline and sent on reconnect. Moderation rules and verified trail maintainers.</p>
+      </div>
+      <div class="release">
+        <span class="tag">v1.0</span><span class="date">Iteration 4, April 2027</span>
+        <p>Testing, polish and the final report.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="architecture">
+  <div class="wrap arch">
+    <div>
+      <img src="assets/architecture.png" alt="TrailTrack architecture: the Flutter app talks to a Spring Boot API backed by PostgreSQL with PostGIS" loading="lazy">
+      <div class="legend"><i style="background:#C8E6C9;border:1px solid #2E5E33"></i>Built in v0.1
+        &nbsp; <i style="background:#FFF;border:1px dashed #999"></i>Planned for later iterations</div>
+    </div>
+    <div>
+      <h2>Architecture</h2>
+      <p>Trails are imported from the register once and stored in PostgreSQL. PostGIS simplifies each route
+        for the map, groups trailheads into sites, and finds the trails near a walker. The app talks to a
+        Spring Boot REST API and draws the routes over OpenStreetMap tiles.</p>
+      <div class="chips">
+        <span>Flutter</span><span>Spring Boot 4</span><span>Java 21</span><span>PostgreSQL</span>
+        <span>PostGIS</span><span>flutter_map</span><span>OpenStreetMap</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="docs" class="soft">
+  <div class="wrap">
+    <h2>Code documentation</h2>
+    <p class="lead">Generated from the code's doc comments each time the site is published.</p>
+    <div class="docs">
+      <a href="docs/backend/"><h3>Backend</h3><span>Spring Boot API, generated with Doxygen, with class diagrams.</span></a>
+      <a href="docs/app/"><h3>App</h3><span>Flutter app, generated with dart doc.</span></a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p>TrailTrack by Mark Mukiiza. Final Year Project, BSc (Hons) Software Development, South East
+      Technological University, Carlow.</p>
+    <p>Trail data: Sport Ireland National Trails Register, published on data.gov.ie under the
+      <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a> licence. Map tiles:
+      &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, under the ODbL.</p>
+  </div>
+</footer>
+
+</body>
+</html>

@@ -18,6 +18,11 @@ offline support lets reports be submitted from areas with patchy signal.
 Final Year Project, BSc (Hons) Software Development, South East
 Technological University (SETU), Carlow.
 
+**Website:** [markus-bear.github.io/TrailTrack](https://markus-bear.github.io/TrailTrack/),
+with a demo video, screenshots, and each release's report and poster.
+
+<img src="site/assets/screens/map.jpg" width="240" alt="The TrailTrack map, with routes in the colours of their trail signs">
+
 ## Status
 
 Iteration 1 of 4 is complete and released as
@@ -61,6 +66,8 @@ docs/diaries/           Weekly project diaries
 docs/iteration-reports/ Reports at the end of each iteration
 docs/posters/           Posters of each release
 docs/releases/          Release notes
+site/                   Project website, published with GitHub Pages
+.github/workflows/      Builds and publishes the website
 ```
 
 ## Getting started
@@ -201,6 +208,20 @@ documentation, and a debug APK of the app.
 ```
 
 The working tree must be clean and checked out at the tag.
+
+### Build the website
+
+The website in `site/` is published to GitHub Pages by the Publish website
+workflow on every push to `main` and every release. To build it locally into
+`_site`:
+
+```bash
+./docs/build-site.sh
+```
+
+This also builds the code documentation, copies in the iteration reports and
+posters, and downloads each release's `*-screencast-site.mp4` attachment, so it
+needs the same tools as the documentation plus the GitHub CLI.
 
 ## API
 

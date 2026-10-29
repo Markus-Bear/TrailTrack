@@ -16,3 +16,6 @@
 
 # Release packages
 /build/
+
+# Website build output
+/_site/
