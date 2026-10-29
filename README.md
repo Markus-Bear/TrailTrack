@@ -19,7 +19,7 @@ Final Year Project, BSc (Hons) Software Development, South East
 Technological University (SETU), Carlow.
 
 **Website:** [markus-bear.github.io/TrailTrack](https://markus-bear.github.io/TrailTrack/),
-with a demo video, screenshots, and each release's report and poster.
+with a demo video, screenshots, the roadmap, and each release's poster.
 
 <img src="site/assets/screens/map.jpg" width="240" alt="The TrailTrack map, with routes in the colours of their trail signs">
 
@@ -219,8 +219,7 @@ workflow on every push to `main` and every release. To build it locally into
 ./docs/build-site.sh
 ```
 
-This also builds the code documentation, copies in the iteration reports and
-posters, and downloads each release's `*-screencast-site.mp4` attachment, so it
+This also builds the code documentation, copies in the posters, and downloads each release's `*-screencast-site.mp4` attachment, so it
 needs the same tools as the documentation plus the GitHub CLI.
 
 ## API

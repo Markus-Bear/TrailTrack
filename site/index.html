@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>TrailTrack</title>
-<meta name="description" content="TrailTrack: real-time trail conditions and community walks for Ireland. A final year project at SETU Carlow.">
+<meta name="description" content="TrailTrack: real-time trail conditions and community walks for Ireland.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232E5E33'/%3E%3Cpath d='M6 24 13 11l5 8 3-4 5 9z' fill='%23fff'/%3E%3C/svg%3E">
 <style>
   :root {
@@ -12,9 +12,8 @@
     --green-mid: #3E7D45;
     --green-light: #E8F3E8;
     --ink: #1C1C1C;
-    --muted: #555;
-    --line: #D5DDD5;
-    --bg: #FFFFFF;
+    --muted: #5A615B;
+    --line: #DCE3DC;
     --soft: #F5F7F5;
     color-scheme: light;
   }
@@ -22,91 +21,134 @@
   html { scroll-behavior: smooth; }
   body {
     font-family: -apple-system, "Helvetica Neue", Helvetica, Arial, sans-serif;
-    color: var(--ink); background: var(--bg); line-height: 1.55; font-size: 17px;
+    color: var(--ink); background: #FFF; line-height: 1.55; font-size: 17px;
   }
   a { color: var(--green-mid); }
-  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 20px; }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
+  .eyebrow { text-transform: uppercase; letter-spacing: 1.5px; font-size: 13px; font-weight: 700; color: var(--green-mid); }
+  h2 { font-size: clamp(28px, 3.6vw, 36px); line-height: 1.15; margin: 8px 0 14px; }
+  h3 { font-size: 19px; margin-bottom: 6px; }
+  .lead { color: var(--muted); max-width: 680px; font-size: 18px; }
+  section { padding: 80px 0; }
+  section.soft { background: var(--soft); }
+  .head { margin-bottom: 36px; }
+
+  /* Navigation */
   nav {
-    position: sticky; top: 0; z-index: 10; background: rgba(255, 255, 255, 0.94);
-    backdrop-filter: blur(6px); border-bottom: 1px solid var(--line);
+    position: sticky; top: 0; z-index: 10; background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(8px); border-bottom: 1px solid var(--line);
   }
-  nav .wrap { display: flex; align-items: center; gap: 22px; height: 56px; overflow-x: auto; white-space: nowrap; }
-  nav b { color: var(--green); font-size: 18px; margin-right: auto; }
+  nav .wrap { display: flex; align-items: center; gap: 24px; height: 58px; overflow-x: auto; white-space: nowrap; }
+  nav .brand { display: flex; align-items: center; gap: 9px; color: var(--green); font-weight: 800; font-size: 18px;
+    margin-right: auto; text-decoration: none; }
   nav a { color: var(--ink); text-decoration: none; font-size: 15px; }
   nav a:hover { color: var(--green-mid); }
-  header { background: var(--green); color: #FFF; padding: 72px 0 64px; }
-  header h1 { font-size: clamp(44px, 8vw, 76px); line-height: 1; letter-spacing: -1px; }
-  header .tagline { font-size: clamp(19px, 2.6vw, 26px); font-weight: 300; margin: 14px 0 18px; }
-  header p { max-width: 640px; opacity: 0.92; }
-  .buttons { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
-  .button {
-    display: inline-block; padding: 12px 22px; border-radius: 999px; font-weight: 600;
-    text-decoration: none; border: 2px solid #FFF;
-  }
+
+  /* Hero */
+  header { background: linear-gradient(160deg, #2E5E33 0%, #244A28 100%); color: #FFF; overflow: hidden; }
+  header .wrap { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 40px; align-items: center; padding-top: 72px; }
+  header .eyebrow { color: #BFE0C1; }
+  header h1 { font-size: clamp(46px, 7vw, 78px); line-height: 1; letter-spacing: -1.5px; margin: 10px 0 18px; }
+  header .tagline { font-size: clamp(20px, 2.4vw, 26px); font-weight: 300; margin-bottom: 18px; }
+  header p { max-width: 540px; opacity: 0.92; }
+  .buttons { display: flex; flex-wrap: wrap; gap: 12px; margin: 30px 0 72px; }
+  .button { display: inline-block; padding: 13px 24px; border-radius: 999px; font-weight: 600; text-decoration: none;
+    border: 2px solid #FFF; }
   .button.solid { background: #FFF; color: var(--green); }
   .button.outline { color: #FFF; }
-  section { padding: 64px 0; }
-  section.soft { background: var(--soft); }
-  h2 { font-size: 30px; color: var(--green); margin-bottom: 18px; }
-  h3 { font-size: 20px; margin-bottom: 6px; }
-  .lead { color: var(--muted); max-width: 720px; margin-bottom: 28px; }
-  .demo { display: grid; grid-template-columns: minmax(0, 360px) 1fr; gap: 40px; align-items: center; }
-  .demo video {
-    width: 100%; max-height: 78vh; border-radius: 28px; border: 8px solid #222; background: #000; display: block;
-  }
-  .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
-  .card { background: var(--green-light); border-radius: 14px; padding: 20px 22px; }
-  .card h3 { color: var(--green); }
-  .phones { display: grid; grid-template-columns: repeat(4, 1fr); gap: 22px; }
-  figure img { width: 100%; border-radius: 18px; border: 1px solid #C9C9C9; display: block; }
-  figcaption { font-size: 15px; color: var(--muted); margin-top: 10px; }
-  figcaption b { display: block; color: var(--ink); }
-  .release {
-    border: 1px solid var(--line); border-radius: 16px; padding: 24px 26px; background: #FFF;
-    display: grid; grid-template-columns: 1fr 220px; gap: 28px; margin-bottom: 18px;
-  }
-  .release .tag {
-    display: inline-block; background: var(--green); color: #FFF; border-radius: 8px;
-    padding: 2px 10px; font-weight: 700; margin-right: 8px;
-  }
-  .release .date { color: var(--muted); font-size: 15px; }
-  .release ul { margin: 12px 0 16px 20px; }
-  .release li { margin-bottom: 4px; }
-  .links { display: flex; flex-wrap: wrap; gap: 10px; }
-  .links a {
-    font-size: 15px; text-decoration: none; padding: 6px 14px; border-radius: 999px;
-    background: var(--green-light); color: var(--green); font-weight: 600;
-  }
-  .release .poster img { width: 100%; border: 1px solid var(--line); border-radius: 6px; display: block; }
-  .planned { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
-  .planned .release { display: block; margin: 0; background: transparent; border-style: dashed; }
-  .planned .tag { background: #8A9A8C; }
-  .arch { display: grid; grid-template-columns: 1.6fr 1fr; gap: 36px; align-items: center; }
-  .arch img { width: 100%; display: block; }
-  .legend { font-size: 14px; color: var(--muted); margin-top: 10px; }
+  .button:hover { opacity: 0.9; }
+  .hero-phone { align-self: end; justify-self: center; width: min(320px, 100%); }
+  .phone { border: 9px solid #151815; border-radius: 34px; overflow: hidden; background: #151815;
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.35); }
+  .phone img, .phone video { width: 100%; display: block; }
+  .hero-phone .phone { border-bottom: 0; border-radius: 34px 34px 0 0; margin-bottom: -2px; }
+
+  /* Numbers */
+  .numbers { background: var(--green-light); }
+  .numbers .wrap { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; padding-top: 28px; padding-bottom: 28px; }
+  .number b { display: block; font-size: 34px; color: var(--green); line-height: 1.1; }
+  .number span { color: var(--muted); font-size: 15px; }
+
+  /* Demo */
+  .demo { display: grid; grid-template-columns: minmax(0, 340px) 1fr; gap: 56px; align-items: center; }
+  .demo .phone video { max-height: 76vh; background: #000; }
+  .demo .links { margin-top: 24px; }
+
+  /* Why */
+  .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .card { background: #FFF; border: 1px solid var(--line); border-radius: 16px; padding: 26px; }
+  .card p { color: var(--muted); }
+
+  /* Features */
+  .features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px 32px; }
+  .feature { display: grid; grid-template-columns: 44px 1fr; gap: 14px; }
+  .icon { width: 44px; height: 44px; border-radius: 12px; background: var(--green-light); color: var(--green);
+    display: grid; place-items: center; }
+  .icon svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2;
+    stroke-linecap: round; stroke-linejoin: round; }
+  .feature p { color: var(--muted); font-size: 16px; }
+
+  /* Screens */
+  .screens { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
+  .screens .phone { border-width: 7px; border-radius: 26px; box-shadow: 0 14px 30px rgba(0, 0, 0, 0.12); }
+  figcaption { font-size: 15px; color: var(--muted); margin-top: 14px; }
+  figcaption b { display: block; color: var(--ink); font-size: 16px; }
+
+  /* Roadmap */
+  .roadmap { display: grid; grid-template-columns: 1.35fr repeat(3, 1fr); gap: 18px; align-items: stretch; }
+  .stage { background: #FFF; border: 1px solid var(--line); border-radius: 16px; padding: 24px; position: relative; }
+  .stage.current { border: 2px solid var(--green); }
+  .stage .top { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 4px; }
+  .version { font-size: 26px; font-weight: 800; color: var(--green); }
+  .status { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; padding: 4px 10px;
+    border-radius: 999px; background: #EEF0EE; color: var(--muted); }
+  .status.released { background: var(--green); color: #FFF; }
+  .status.next { background: #FFF1D6; color: #8A5A00; }
+  .when { color: var(--muted); font-size: 14px; margin-bottom: 14px; }
+  .stage ul { list-style: none; }
+  .stage li { position: relative; padding-left: 22px; margin-bottom: 8px; font-size: 15px; }
+  .stage li::before { content: ""; position: absolute; left: 2px; top: 8px; width: 7px; height: 7px; border-radius: 50%;
+    background: #A9B5AA; }
+  .stage.current li::before { left: 1px; top: 4px; width: 9px; height: 5px; border-radius: 0; background: none;
+    border-left: 2px solid var(--green-mid); border-bottom: 2px solid var(--green-mid); transform: rotate(-45deg); }
+  .links { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+  .links a { font-size: 14px; text-decoration: none; padding: 7px 14px; border-radius: 999px;
+    background: var(--green-light); color: var(--green); font-weight: 600; }
+  .links a:hover { background: #D7EBD8; }
+
+  /* Architecture */
+  .arch { display: grid; grid-template-columns: 1.5fr 1fr; gap: 48px; align-items: center; }
+  .arch img { width: 100%; display: block; border: 1px solid var(--line); border-radius: 16px; background: #FFF; padding: 18px; }
+  .legend { font-size: 14px; color: var(--muted); margin-top: 12px; }
   .legend i { display: inline-block; width: 22px; height: 12px; border-radius: 3px; vertical-align: -1px; margin-right: 6px; }
-  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
-  .chips span {
-    font-size: 14px; padding: 5px 12px; border-radius: 999px; background: var(--green-light);
-    color: var(--green); font-weight: 600;
-  }
-  .docs { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
-  .docs a {
-    display: block; border: 1px solid var(--line); border-radius: 14px; padding: 22px 24px;
-    text-decoration: none; color: var(--ink); background: #FFF;
-  }
+  .arch p { color: var(--muted); }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
+  .chips span { font-size: 14px; padding: 6px 12px; border-radius: 999px; background: var(--green-light);
+    color: var(--green); font-weight: 600; }
+
+  /* Docs */
+  .docs { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .docs a { display: block; border: 1px solid var(--line); border-radius: 16px; padding: 26px; text-decoration: none;
+    color: var(--ink); background: #FFF; }
   .docs a:hover { border-color: var(--green-mid); }
   .docs span { color: var(--muted); font-size: 15px; }
-  footer { background: var(--green); color: #FFF; padding: 36px 0; font-size: 15px; }
+
+  footer { background: #1F3F23; color: #E3EEE4; padding: 40px 0; font-size: 15px; }
   footer a { color: #FFF; }
-  footer p + p { margin-top: 8px; opacity: 0.85; }
-  @media (max-width: 860px) {
-    .demo, .arch, .release, .docs { grid-template-columns: 1fr; }
-    .cards, .planned { grid-template-columns: 1fr; }
-    .phones { grid-template-columns: repeat(2, 1fr); }
-    .demo video { max-width: 340px; margin: 0 auto; }
-    .release .poster { max-width: 260px; }
-    nav .wrap { gap: 14px; }
+  footer .wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+  footer b { color: #FFF; display: block; margin-bottom: 6px; }
+
+  @media (max-width: 900px) {
+    header .wrap, .demo, .arch, .docs, footer .wrap { grid-template-columns: 1fr; }
+    .buttons { margin-bottom: 40px; }
+    .hero-phone { width: min(280px, 80%); }
+    .numbers .wrap { grid-template-columns: repeat(2, 1fr); }
+    .cards, .features { grid-template-columns: 1fr; }
+    .screens { grid-template-columns: repeat(2, 1fr); }
+    .roadmap { grid-template-columns: 1fr; }
+    .demo .phone { max-width: 320px; margin: 0 auto; }
+    section { padding: 60px 0; }
+    nav .wrap { gap: 16px; }
     nav a { font-size: 14px; }
   }
 </style>
@@ -115,36 +157,54 @@
 
 <nav>
   <div class="wrap">
-    <b>TrailTrack</b>
+    <a class="brand" href="#top">TrailTrack</a>
     <a href="#demo">Demo</a>
-    <a href="#about">About</a>
-    <a href="#releases">Releases</a>
+    <a href="#features">Features</a>
+    <a href="#roadmap">Roadmap</a>
     <a href="#architecture">Architecture</a>
     <a href="#docs">Code docs</a>
   </div>
 </nav>
 
-<header>
+<header id="top">
   <div class="wrap">
-    <h1>TrailTrack</h1>
-    <div class="tagline">Real-time trail conditions and community walks for Ireland</div>
-    <p>An Android app for walkers in Ireland. Check a trail's condition before you head out, and report
-      what you find so the next walker knows what to expect.</p>
-    <div class="buttons">
-      <a class="button solid" href="https://github.com/Markus-Bear/TrailTrack/releases/latest">Download the latest release</a>
-      <a class="button outline" href="#demo">Watch the demo</a>
+    <div>
+      <div class="eyebrow">Trail conditions for Ireland</div>
+      <h1>TrailTrack</h1>
+      <div class="tagline">Know what a trail is like before you set out.</div>
+      <p>An Android app for walkers in Ireland. See the latest conditions on official trails, report what you
+        find along the way, and soon, join group walks organised by local clubs.</p>
+      <div class="buttons">
+        <a class="button solid" href="https://github.com/Markus-Bear/TrailTrack/releases/latest">Download the latest release</a>
+        <a class="button outline" href="#demo">Watch the demo</a>
+      </div>
+    </div>
+    <div class="hero-phone">
+      <div class="phone"><img src="assets/screens/route.jpg" alt="TrailTrack showing the routes at Ridge of Capard, drawn in their trail sign colours"></div>
     </div>
   </div>
 </header>
 
+<div class="numbers">
+  <div class="wrap">
+    <div class="number"><b>28</b><span>trails in County Laois</span></div>
+    <div class="number"><b>13</b><span>trail sites on the map</span></div>
+    <div class="number"><b>9</b><span>condition types to report</span></div>
+    <div class="number"><b>4</b><span>releases planned</span></div>
+  </div>
+</div>
+
 <section id="demo">
   <div class="wrap demo">
-    <video controls preload="metadata" playsinline poster="assets/screens/map.jpg"
-           src="media/TrailTrack-v0.1-screencast-site.mp4"></video>
+    <div class="phone">
+      <video controls preload="metadata" playsinline poster="assets/screens/map.jpg"
+             src="media/TrailTrack-v0.1-screencast-site.mp4"></video>
+    </div>
     <div>
+      <div class="eyebrow">Demo</div>
       <h2>See it in action</h2>
-      <p class="lead">A four-minute walkthrough of release v0.1 on the Android emulator: the trail map, search,
-        a trail's details, creating an account, and reporting a fallen tree.</p>
+      <p class="lead">A four-minute walkthrough of release v0.1: exploring the trail map, searching for trails
+        nearby, opening a trail's details, creating an account and reporting a fallen tree.</p>
       <div class="links">
         <a href="media/TrailTrack-v0.1-screencast-site.mp4" download>Download the video</a>
       </div>
@@ -152,17 +212,19 @@
   </div>
 </section>
 
-<section id="about" class="soft">
+<section class="soft">
   <div class="wrap">
-    <h2>Why TrailTrack</h2>
-    <p class="lead">Mud, flooding, fallen trees and forestry work can change a trail overnight, but walkers
-      plan around information that is often out of date. Group walks are arranged across club websites,
-      social media and group chats, with no single place to find one. Patchy signal on hills and in
-      forests makes both harder.</p>
+    <div class="head">
+      <div class="eyebrow">Why TrailTrack</div>
+      <h2>Trail conditions change overnight</h2>
+      <p class="lead">Mud, flooding, fallen trees and forestry work can close a path at any time, but walkers plan
+        around information that is often out of date. Group walks are spread across club websites, social media
+        and group chats, with no single place to find one.</p>
+    </div>
     <div class="cards">
       <div class="card">
         <h3>Official trail data</h3>
-        <p>Routes come from the Sport Ireland National Trails Register, drawn in the colours of their
+        <p>Every route comes from the Sport Ireland National Trails Register, drawn in the colours of its
           waymark signs.</p>
       </div>
       <div class="card">
@@ -172,111 +234,175 @@
       </div>
       <div class="card">
         <h3>Community walks</h3>
-        <p>Walking clubs and local walkers organise and join group walks on a trail. Coming in v0.2.</p>
+        <p>Walking clubs and local walkers will organise and join group walks on a trail. Coming in v0.2.</p>
       </div>
     </div>
   </div>
 </section>
 
-<section id="screens">
+<section id="features">
   <div class="wrap">
-    <h2>The app</h2>
-    <div class="phones">
-      <figure><img src="assets/screens/map.jpg" alt="The map with numbered site pins" loading="lazy">
-        <figcaption><b>The map</b>Routes in their trail sign colours, with a numbered pin for each site.</figcaption></figure>
-      <figure><img src="assets/screens/route.jpg" alt="A selected route with its site's route chips" loading="lazy">
-        <figcaption><b>A selected route</b>Chips switch between the routes that start at a site.</figcaption></figure>
-      <figure><img src="assets/screens/trail.jpg" alt="Trail details with current conditions and recent reports" loading="lazy">
-        <figcaption><b>Trail details</b>Current conditions and the reports from the last 7 days.</figcaption></figure>
-      <figure><img src="assets/screens/report.jpg" alt="The report condition form" loading="lazy">
-        <figcaption><b>Report a condition</b>What you found, how bad it is, and an optional note.</figcaption></figure>
+    <div class="head">
+      <div class="eyebrow">Available now</div>
+      <h2>What it does today</h2>
+    </div>
+    <div class="features">
+      <div class="feature">
+        <div class="icon"><svg viewBox="0 0 24 24"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/></svg></div>
+        <div><h3>A map in sign colours</h3><p>Routes are drawn in the colour of their waymark arrows, so the map
+          matches the signs on the ground.</p></div>
+      </div>
+      <div class="feature">
+        <div class="icon"><svg viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></div>
+        <div><h3>Trail sites</h3><p>Routes that start from the same car park are grouped under one pin, with a
+          chooser where routes share a path.</p></div>
+      </div>
+      <div class="feature">
+        <div class="icon"><svg viewBox="0 0 24 24"><path d="M5 21V4"/><path d="M5 4h11l-2 4 2 4H5"/></svg></div>
+        <div><h3>Condition reports</h3><p>Report mud, flooding, fallen trees, closures and more, with a severity
+          and an optional note.</p></div>
+      </div>
+      <div class="feature">
+        <div class="icon"><svg viewBox="0 0 24 24"><path d="M8 6h12M8 12h12M8 18h12"/><path d="M4 6h.01M4 12h.01M4 18h.01"/></svg></div>
+        <div><h3>Trail details</h3><p>Length, difficulty and time to complete, the current conditions, and the
+          reports from the last week.</p></div>
+      </div>
+      <div class="feature">
+        <div class="icon"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="m20 20-4.5-4.5"/></svg></div>
+        <div><h3>Search near you</h3><p>Find trails by name, or the closest ones within 5, 10 or 25 km of where
+          you are.</p></div>
+      </div>
+      <div class="feature">
+        <div class="icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg></div>
+        <div><h3>Accounts</h3><p>Create an account to post reports. The login is kept securely on the phone, so
+          you stay signed in.</p></div>
+      </div>
     </div>
   </div>
 </section>
 
-<section id="releases" class="soft">
+<section class="soft" id="screens">
   <div class="wrap">
-    <h2>Releases</h2>
-    <p class="lead">TrailTrack is built in four iterations, each ending in a tagged release with a report,
-      a poster and a screencast.</p>
+    <div class="head">
+      <div class="eyebrow">Screens</div>
+      <h2>A closer look</h2>
+    </div>
+    <div class="screens">
+      <figure><div class="phone"><img src="assets/screens/map.jpg" alt="The map with numbered site pins" loading="lazy"></div>
+        <figcaption><b>The map</b>Every trail, with a numbered pin for each site.</figcaption></figure>
+      <figure><div class="phone"><img src="assets/screens/route.jpg" alt="A selected route with its site's route chips" loading="lazy"></div>
+        <figcaption><b>A selected route</b>Chips switch between the routes at a site.</figcaption></figure>
+      <figure><div class="phone"><img src="assets/screens/trail.jpg" alt="Trail details with current conditions and recent reports" loading="lazy"></div>
+        <figcaption><b>Trail details</b>Current conditions and recent reports.</figcaption></figure>
+      <figure><div class="phone"><img src="assets/screens/report.jpg" alt="The report condition form" loading="lazy"></div>
+        <figcaption><b>Report a condition</b>A few taps, with one hand, on the trail.</figcaption></figure>
+    </div>
+  </div>
+</section>
 
-    <div class="release">
-      <div>
-        <span class="tag">v0.1</span><span class="date">Iteration 1, released 29 October 2026</span>
+<section id="roadmap">
+  <div class="wrap">
+    <div class="head">
+      <div class="eyebrow">Roadmap</div>
+      <h2>Built in four releases</h2>
+      <p class="lead">Each release adds a set of features to the app. Here is what has shipped so far and
+        what is coming next.</p>
+    </div>
+    <div class="roadmap">
+      <div class="stage current">
+        <div class="top"><span class="version">v0.1</span><span class="status released">Released</span></div>
+        <div class="when">October 2026</div>
         <ul>
-          <li>The 28 County Laois trails, imported from the Sport Ireland National Trails Register</li>
-          <li>A map with routes in their sign colours, grouped into sites</li>
-          <li>Accounts: register, log in and stay logged in</li>
-          <li>Trail details and condition reports</li>
-          <li>Search by name, or near you within 5, 10 or 25 km</li>
+          <li>28 Laois trails from the Sport Ireland register</li>
+          <li>Map in sign colours, grouped into sites</li>
+          <li>Accounts and condition reports</li>
+          <li>Trail details and search near you</li>
         </ul>
         <div class="links">
           <a href="https://github.com/Markus-Bear/TrailTrack/releases/tag/v0.1">Release and downloads</a>
-          <a href="files/TrailTrack_Iteration1_Report.pdf">Iteration report (PDF)</a>
-          <a href="files/TrailTrack_Iteration1_Poster.pdf">Poster (PDF)</a>
-          <a href="#demo">Screencast</a>
+          <a href="files/TrailTrack_Iteration1_Poster.pdf">Poster</a>
+          <a href="#demo">Demo</a>
         </div>
       </div>
-      <a class="poster" href="files/TrailTrack_Iteration1_Poster.pdf">
-        <img src="assets/poster-v0.1.jpg" alt="The Iteration 1 poster" loading="lazy">
-      </a>
-    </div>
-
-    <div class="planned">
-      <div class="release">
-        <span class="tag">v0.2</span><span class="date">Iteration 2, December 2026</span>
-        <p>Community walks: create, browse and RSVP. Live conditions on the map and hazard pins.</p>
+      <div class="stage">
+        <div class="top"><span class="version">v0.2</span><span class="status next">Next up</span></div>
+        <div class="when">December 2026</div>
+        <ul>
+          <li>Community walks: create, browse and RSVP</li>
+          <li>Live trail conditions on the map</li>
+          <li>Hazard pins on reports</li>
+          <li>Search by difficulty</li>
+        </ul>
       </div>
-      <div class="release">
-        <span class="tag">v0.3</span><span class="date">Iteration 3, February 2027</span>
-        <p>Reports queued offline and sent on reconnect. Moderation rules and verified trail maintainers.</p>
+      <div class="stage">
+        <div class="top"><span class="version">v0.3</span><span class="status">Planned</span></div>
+        <div class="when">February 2027</div>
+        <ul>
+          <li>Reports queued offline and sent on reconnect</li>
+          <li>Moderation of reports</li>
+          <li>Verified trail maintainers</li>
+        </ul>
       </div>
-      <div class="release">
-        <span class="tag">v1.0</span><span class="date">Iteration 4, April 2027</span>
-        <p>Testing, polish and the final report.</p>
+      <div class="stage">
+        <div class="top"><span class="version">v1.0</span><span class="status">Planned</span></div>
+        <div class="when">April 2027</div>
+        <ul>
+          <li>Testing and polish</li>
+          <li>The finished app</li>
+        </ul>
       </div>
     </div>
   </div>
 </section>
 
-<section id="architecture">
+<section class="soft" id="architecture">
   <div class="wrap arch">
     <div>
       <img src="assets/architecture.png" alt="TrailTrack architecture: the Flutter app talks to a Spring Boot API backed by PostgreSQL with PostGIS" loading="lazy">
       <div class="legend"><i style="background:#C8E6C9;border:1px solid #2E5E33"></i>Built in v0.1
-        &nbsp; <i style="background:#FFF;border:1px dashed #999"></i>Planned for later iterations</div>
+        &nbsp; <i style="background:#FFF;border:1px dashed #999"></i>Planned for later releases</div>
     </div>
     <div>
+      <div class="eyebrow">How it works</div>
       <h2>Architecture</h2>
-      <p>Trails are imported from the register once and stored in PostgreSQL. PostGIS simplifies each route
-        for the map, groups trailheads into sites, and finds the trails near a walker. The app talks to a
-        Spring Boot REST API and draws the routes over OpenStreetMap tiles.</p>
+      <p>Trails are imported from the Sport Ireland register once and stored in PostgreSQL. PostGIS simplifies
+        each route for the map, groups trailheads into sites, and finds the trails near a walker. The app
+        talks to a Spring Boot REST API and draws the routes over OpenStreetMap.</p>
       <div class="chips">
         <span>Flutter</span><span>Spring Boot 4</span><span>Java 21</span><span>PostgreSQL</span>
-        <span>PostGIS</span><span>flutter_map</span><span>OpenStreetMap</span>
+        <span>PostGIS</span><span>OpenStreetMap</span>
       </div>
     </div>
   </div>
 </section>
 
-<section id="docs" class="soft">
+<section id="docs">
   <div class="wrap">
-    <h2>Code documentation</h2>
-    <p class="lead">Generated from the code's doc comments each time the site is published.</p>
+    <div class="head">
+      <div class="eyebrow">For developers</div>
+      <h2>Code documentation</h2>
+      <p class="lead">Generated from the code each time the site is published.</p>
+    </div>
     <div class="docs">
-      <a href="docs/backend/"><h3>Backend</h3><span>Spring Boot API, generated with Doxygen, with class diagrams.</span></a>
-      <a href="docs/app/"><h3>App</h3><span>Flutter app, generated with dart doc.</span></a>
+      <a href="docs/backend/"><h3>Backend</h3><span>The Spring Boot API, with class diagrams.</span></a>
+      <a href="docs/app/"><h3>App</h3><span>The Flutter app.</span></a>
     </div>
   </div>
 </section>
 
 <footer>
   <div class="wrap">
-    <p>TrailTrack by Mark Mukiiza. Final Year Project, BSc (Hons) Software Development, South East
-      Technological University, Carlow.</p>
-    <p>Trail data: Sport Ireland National Trails Register, published on data.gov.ie under the
-      <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a> licence. Map tiles:
-      &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, under the ODbL.</p>
+    <div>
+      <b>TrailTrack</b>
+      By Mark Mukiiza. Final Year Project, BSc (Hons) Software Development, South East Technological
+      University, Carlow.
+    </div>
+    <div>
+      <b>Data and attribution</b>
+      Trail data: Sport Ireland National Trails Register, published on data.gov.ie under
+      <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>. Map tiles:
+      &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, under the ODbL.
+    </div>
   </div>
 </footer>
 
