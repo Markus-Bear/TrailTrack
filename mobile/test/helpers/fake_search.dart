@@ -56,9 +56,13 @@ class FakeLocationService implements LocationService {
   LocationResult result;
   int calls = 0;
 
+  /// When set, the position is not returned until this completes.
+  Completer<void>? hold;
+
   @override
   Future<LocationResult> currentPosition() async {
     calls++;
+    await hold?.future;
     return result;
   }
 }

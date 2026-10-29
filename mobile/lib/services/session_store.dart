@@ -9,8 +9,10 @@ abstract interface class SessionStore {
   /// @return the saved session, or null if there is none
   Future<AuthSession?> load();
 
+  /// Saves [session], replacing any saved one.
   Future<void> save(AuthSession session);
 
+  /// Removes the saved session, e.g. on log out.
   Future<void> clear();
 }
 

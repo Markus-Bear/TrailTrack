@@ -28,6 +28,9 @@ class TrailTrackApp extends StatelessWidget {
       value: auth,
       child: MaterialApp(
         title: 'TrailTrack',
+        // Releases are debug builds, so they can reach a local backend over
+        // plain HTTP; the debug ribbon is not part of the app.
+        debugShowCheckedModeBanner: false,
         theme: ThemeData(colorSchemeSeed: const Color(0xFF2E7D32)),
         home: const HomeScreen(),
       ),

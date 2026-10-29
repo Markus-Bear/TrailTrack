@@ -20,7 +20,10 @@ import org.springframework.web.server.ResponseStatusException;
 @Service
 public class TrailSearchService {
 
+    /** The radius used when a position is given without one. */
     static final double DEFAULT_RADIUS_KM = 10;
+
+    /** The largest radius allowed, so a search cannot cover the whole country. */
     static final double MAX_RADIUS_KM = 100;
 
     private final TrailRepository trailRepository;

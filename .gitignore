@@ -6,7 +6,13 @@
 # OS
 .DS_Store
 
+# Lock files Office leaves next to open documents
+~$*
+
 # Environment files that may hold secrets
 .env
 .env.local
 *.local.properties
+
+# Release packages
+/build/

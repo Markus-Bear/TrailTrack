@@ -1,17 +1,19 @@
-# trailtrack
+# TrailTrack app
 
-A new Flutter project.
+The Flutter Android app for TrailTrack: trail conditions and community walks
+for Ireland.
 
-## Getting Started
+## Structure
 
-This project is a starting point for a Flutter application.
+| Folder | Contents |
+|---|---|
+| `lib/models` | Data classes parsed from the backend's JSON |
+| `lib/services` | Backend API clients, the saved login session and the phone's location |
+| `lib/view_models` | Screen state and logic (MVVM, with `provider`) |
+| `lib/screens` | One file per screen |
+| `lib/widgets` | Widgets shared between screens, and the map's overlays and route styles |
 
-A few resources to get you started if this is your first Flutter project:
+The map screen keeps its own state for now; newer screens use a view model.
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+See the [main README](../README.md) for setup, running the app and the
+backend API.

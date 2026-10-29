@@ -12,6 +12,10 @@ import java.util.Locale;
  */
 public record TrailFeatureCollection(String type, List<Feature> features) {
 
+    /**
+     * @param features one feature per trail
+     * @return the collection
+     */
     public static TrailFeatureCollection of(List<Feature> features) {
         return new TrailFeatureCollection("FeatureCollection", features);
     }

@@ -19,6 +19,7 @@ public class TrailSpatialIndexInitializer implements ApplicationRunner {
         this.jdbcTemplate = jdbcTemplate;
     }
 
+    /** Creates the index on startup, if it does not exist yet. */
     @Override
     public void run(ApplicationArguments args) {
         jdbcTemplate.execute(

@@ -18,6 +18,11 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 public class SecurityConfig {
 
+    /**
+     * @param http the security builder
+     * @return the access rules above, with login tokens checked on every request
+     * @throws Exception if the rules cannot be built
+     */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http

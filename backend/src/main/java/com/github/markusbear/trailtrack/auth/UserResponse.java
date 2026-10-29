@@ -12,6 +12,10 @@ import com.github.markusbear.trailtrack.user.User;
  */
 public record UserResponse(Long id, String displayName, String email, String role) {
 
+    /**
+     * @param user a stored account
+     * @return its details, without the password hash
+     */
     public static UserResponse from(User user) {
         return new UserResponse(user.getId(), user.getDisplayName(), user.getEmail(), user.getRole().name());
     }

@@ -36,6 +36,7 @@ public class JwtConfig {
         return new SecretKeySpec(secret, "HmacSHA256");
     }
 
+    /** Signs login tokens with the key, using HS256. */
     @Bean
     public JwtEncoder jwtEncoder(SecretKey jwtSigningKey) {
         return NimbusJwtEncoder.withSecretKey(jwtSigningKey).algorithm(MacAlgorithm.HS256).build();

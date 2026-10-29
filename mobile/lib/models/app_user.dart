@@ -25,6 +25,7 @@ class AppUser {
     role: json['role'] as String,
   );
 
+  /// @return the account as JSON, in the same shape [AppUser.fromJson] reads
   Map<String, dynamic> toJson() => {
     'id': id,
     'displayName': displayName,

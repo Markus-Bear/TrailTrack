@@ -22,6 +22,7 @@ public class TrailDetailService {
 
     /** How far back recent reports go, until report expiry is decided. */
     static final Duration RECENT_WINDOW = Duration.ofDays(7);
+    /** The most recent reports returned with a trail. */
     static final int MAX_RECENT_REPORTS = 20;
 
     private final TrailRepository trailRepository;
