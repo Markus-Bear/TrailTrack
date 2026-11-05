@@ -20,8 +20,10 @@ Technological University (SETU), Carlow.
 
 **Website:** [markus-bear.github.io/TrailTrack](https://markus-bear.github.io/TrailTrack/),
 with a demo video, screenshots, the roadmap, and each release's poster.
-
+<p align="center">
 <img src="site/assets/screens/map.jpg" width="240" alt="The TrailTrack map, with routes in the colours of their trail signs">
+</p>
+
 
 ## Status
 
