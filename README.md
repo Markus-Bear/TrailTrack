@@ -53,7 +53,7 @@ Iteration 4 is testing and polish.
 |---|---|
 | Mobile client | Flutter (Android) |
 | Backend API | Spring Boot 4, Java 21, Gradle |
-| Database | PostgreSQL 16 or later with PostGIS 3 |
+| Database | PostgreSQL 16 or later with PostGIS 3, schema managed by Flyway migrations |
 | Map tiles | OpenStreetMap via flutter_map |
 | Trail data | Sport Ireland National Trails Register |
 
@@ -82,7 +82,9 @@ site/                   Project website, published with GitHub Pages
 
 ### Database setup
 
-Create a database user and the `trailtrack` database, and enable PostGIS:
+Create a database user and the `trailtrack` database, and enable PostGIS.
+The tables themselves are created by the backend's migrations when it first
+starts (see [Database migrations](#database-migrations)).
 
 ```bash
 sudo -u postgres createuser --createdb --login <your-username>
@@ -134,8 +136,31 @@ cd backend
 ./gradlew bootRun
 ```
 
-The API runs on `http://localhost:8080`. The database tables are created
-automatically on first start.
+The API runs on `http://localhost:8080`. On startup the backend brings the
+database up to date by running any migrations it has not run yet.
+
+### Database migrations
+
+The database schema is managed by [Flyway](https://flywaydb.org/). Every
+change to it is a numbered SQL file in
+`backend/src/main/resources/db/migration/`, starting with
+`V1__initial_schema.sql`. Each file runs once, in order, and the
+`flyway_schema_history` table records which have run. Hibernate only checks
+that the entity classes match the schema; it never changes it.
+
+To change the schema, add the next file, for example `V2__add_walks.sql`.
+Never edit a migration that has already run: Flyway compares checksums and
+refuses to start if one has changed.
+
+A database created before migrations were introduced (release v0.1) already
+has the tables, so the backend refuses to start on it. Mark it once as being
+at version 1, which keeps all its data:
+
+```bash
+SPRING_FLYWAY_BASELINE_ON_MIGRATE=true ./gradlew bootRun
+```
+
+After that, start the backend normally.
 
 ### Import trail data
 
