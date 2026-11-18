@@ -4,6 +4,12 @@ plugins {
     id("dev.flutter.flutter-gradle-plugin")
 }
 
+// Release builds are signed with the upload key when its keystore path and
+// password are set in the environment, and with the debug key otherwise.
+val uploadKeystore: String? = System.getenv("TRAILTRACK_KEYSTORE")
+val uploadKeystorePassword: String? = System.getenv("TRAILTRACK_KEYSTORE_PASSWORD")
+val hasUploadKey = !uploadKeystore.isNullOrBlank() && !uploadKeystorePassword.isNullOrBlank()
+
 android {
     namespace = "com.github.markusbear.trailtrack"
     compileSdk = flutter.compileSdkVersion
@@ -29,11 +35,20 @@ android {
         versionName = flutter.versionName
     }
 
+    signingConfigs {
+        if (hasUploadKey) {
+            create("upload") {
+                storeFile = file(uploadKeystore!!)
+                storePassword = uploadKeystorePassword
+                keyAlias = "upload"
+                keyPassword = uploadKeystorePassword
+            }
+        }
+    }
+
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = signingConfigs.getByName(if (hasUploadKey) "upload" else "debug")
         }
     }
 }
