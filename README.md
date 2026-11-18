@@ -56,6 +56,7 @@ Iteration 4 is testing and polish.
 | Database | PostgreSQL 16 or later with PostGIS 3, schema managed by Flyway migrations |
 | Map tiles | OpenStreetMap via flutter_map |
 | Trail data | Sport Ireland National Trails Register |
+| Hosting | Heroku (backend and PostgreSQL), see [Deployment](#deployment) |
 
 ## Repository structure
 
@@ -190,6 +191,9 @@ on a physical phone:
 flutter run --dart-define=API_BASE_URL=http://<your-computer-ip>:8080
 ```
 
+To build an app that works on any phone against the hosted backend, see
+[Build the release app](#build-the-release-app).
+
 ### Run the tests
 
 ```bash
@@ -248,6 +252,87 @@ workflow on every push to `main` and every release. To build it locally into
 
 This also builds the code documentation, copies in the posters, and downloads each release's `*-screencast-site.mp4` attachment, so it
 needs the same tools as the documentation plus the GitHub CLI.
+
+## Deployment
+
+The backend and its database run on Heroku in the EU region, at
+<https://trailtrack-api-d99178422c41.herokuapp.com>. Only the `backend/`
+folder is deployed; Heroku builds it with Gradle and starts it with
+`backend/Procfile`. These steps need the
+[Heroku CLI](https://devcenter.heroku.com/articles/heroku-cli) and a
+logged-in Heroku account.
+
+### Set up the server (once)
+
+Run from the repository root:
+
+```bash
+heroku create trailtrack-api --region eu
+heroku addons:create heroku-postgresql:essential-0 -a trailtrack-api
+heroku buildpacks:set heroku/gradle -a trailtrack-api
+heroku config:set JWT_SECRET="$(openssl rand -base64 48)" REQUIRE_HTTPS=true -a trailtrack-api >/dev/null
+```
+
+| Setting | Purpose |
+|---|---|
+| `DATABASE_URL` | Set by the Postgres add-on; Heroku turns it into Spring's datasource settings |
+| `PORT` | Set by Heroku on every start |
+| `JWT_SECRET` | Signing key for login tokens, separate from any local key |
+| `REQUIRE_HTTPS` | Redirects plain `http` requests to `https` |
+| `ADMIN_EMAIL`, `ADMIN_PASSWORD` | First administrator account (below) |
+
+The Postgres add-on includes PostGIS. The first start runs the Flyway
+migrations, which enable PostGIS and create the tables.
+
+### Deploy the backend
+
+Commit the changes, then push the `backend/` folder to Heroku:
+
+```bash
+git subtree push --prefix backend heroku main
+```
+
+Heroku builds the jar (without running the tests, which need a local
+database) and restarts the app. Follow the logs with
+`heroku logs --tail -a trailtrack-api`.
+
+### Create the administrator and import the trails
+
+Set the administrator account, wait for the restart, then remove the
+password; the account keeps working:
+
+```bash
+heroku config:set ADMIN_EMAIL='<email>' ADMIN_PASSWORD='<password>' -a trailtrack-api >/dev/null
+heroku config:unset ADMIN_PASSWORD -a trailtrack-api
+```
+
+Log in as the administrator and run the import as in
+[Import trail data](#import-trail-data), using the hosted address instead of
+`http://localhost:8080`.
+
+### Build the release app
+
+Release builds are signed with an upload key kept outside the repository. To
+create it once (on macOS), with your own name and location:
+
+```bash
+./docs/create-signing-key.sh "CN=<name>, L=<town>, ST=<county>, C=IE"
+```
+
+This writes `~/trailtrack-upload-keystore.jks` and stores its random password
+in the login Keychain. Back up both: later versions of the app only install
+over earlier ones when signed with the same key.
+
+Then build release APKs, one per CPU architecture, that use the hosted
+backend:
+
+```bash
+./docs/build-release-apk.sh https://trailtrack-api-d99178422c41.herokuapp.com
+```
+
+The APKs are written to `mobile/build/app/outputs/flutter-apk/`; most phones
+use `app-arm64-v8a-release.apk`. Without the key, release builds fall back to
+the debug key.
 
 ## API
 
