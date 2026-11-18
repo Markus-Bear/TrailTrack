@@ -42,3 +42,8 @@ dependencies {
 tasks.named('test') {
 	useJUnitPlatform()
 }
+
+// Only the runnable jar is built, so build/libs holds a single jar.
+tasks.named('jar') {
+	enabled = false
+}
